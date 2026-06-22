@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinite Stream Typing Game</title>
+    <title>Infinite Stream Typing Game - Monkey Edition</title>
     <style>
-        /* 기본 UI 설정: 깔끔한 블랙 */
+        /* 기본 UI 설정 */
         body {
             margin: 0;
             background-color: #050505;
@@ -19,64 +19,87 @@
             color: #ffffff;
         }
 
-        /* 게임 창: 한 줄만 보여주기 위해 overflow hidden */
+        /* 1. 우측 상단 바나나 이미지 버튼 및 배지 스타일 */
+        #popup-btn-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            display: inline-block;
+            z-index: 2;
+        }
+        #banana-img {
+            width: 50px; /* 바나나 이미지 크기 조정 */
+            height: auto;
+            display: block;
+            transition: transform 0.1s ease;
+        }
+        #banana-img:hover {
+            transform: scale(1.1); /* 마우스 올리면 살짝 커짐 */
+        }
+        #word-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ff3366; /* 쨍한 핑크색 배지 */
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-radius: 50%;
+            padding: 4px 8px;
+            min-width: 15px;
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+        /* 2. 게임 텍스트 창 (한 줄 스트림) */
         #game-window {
             width: 100vw;
-            height: 120px;
+            height: 100px;
             overflow: hidden;
             position: relative;
             display: flex;
             align-items: center;
+            margin-top: 50px;
         }
-
-        /* 글자들이 일렬로 배열되는 컨테이너 */
         #game-container {
             white-space: nowrap;
             position: absolute;
-            left: 50vw; /* 첫 글자가 화면 정중앙에 오도록 설정 */
+            left: 50vw; 
             transform: translateX(0px);
-            transition: transform 0.1s ease-out;
+            transition: transform 0.08s ease-out;
         }
-
-        /* 개별 글자 스타일 (너비를 고정해야 정밀한 스크롤 가능) */
         .char-span {
             display: inline-block;
-            width: 45px; /* 글자 한 칸의 너비 */
+            width: 45px; 
             font-size: 3.5rem;
             font-weight: bold;
-            color: #444; /* 대기 글자는 회색 */
+            color: #444; 
             text-align: center;
-            transition: color 0.1s ease-in-out;
+            transition: color 0.08s ease-in-out;
         }
 
-        /* 팝업 열기 버튼 */
-        #popup-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: 1px solid #444;
-            color: #aaa;
-            padding: 10px 15px;
-            font-family: inherit;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
+        /* 3. 하단 원숭이 이미지 영역 */
+        #monkey-container {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        #popup-btn:hover {
-            border-color: #fff;
-            color: #fff;
+        #monkey-img {
+            width: 180px; /* 원숭이 이미지 크기 (원하는 대로 조절 가능) */
+            height: auto;
+            image-rendering: pixelated; /* 만약 도트 패스라면 깔끔하게 출력되도록 */
+            user-select: none;
         }
 
-        /* 팝업창(모달) 스타일 */
+        /* 4. 팝업창(모달) 스타일 */
         #word-modal {
-            display: none; /* 기본 숨김 */
+            display: none; 
             position: fixed;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 300px;
-            max-height: 400px;
+            width: 300px; max-height: 400px;
             background-color: #111;
             border: 1px solid #333;
             padding: 20px;
@@ -94,38 +117,34 @@
         #modal-title { margin: 0; font-size: 1.2rem; color: #fff; }
         #close-btn { background: none; border: none; color: #888; cursor: pointer; font-size: 1.2rem; }
         #close-btn:hover { color: #fff; }
-        
-        /* 수집된 단어 리스트 */
         #word-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            max-height: 300px;
-            overflow-y: auto;
+            list-style: none; padding: 0; margin: 0;
+            max-height: 300px; overflow-y: auto;
         }
         #word-list li {
-            padding: 8px 0;
-            border-bottom: 1px solid #222;
-            font-size: 1.2rem;
-            font-weight: bold;
+            padding: 8px 0; border-bottom: 1px solid #222;
+            font-size: 1.2rem; font-weight: bold;
         }
-
-        /* 팝업 뒤 어두운 배경 */
         #modal-overlay {
-            display: none;
-            position: fixed;
+            display: none; position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.7);
-            z-index: 5;
+            background: rgba(0,0,0,0.7); z-index: 5;
         }
     </style>
 </head>
 <body>
 
-    <button id="popup-btn">📜 WORDS (0)</button>
+    <div id="popup-btn-container">
+        <img id="banana-img" src="banana.png" alt="Words Bucket">
+        <div id="word-badge">0</div>
+    </div>
 
     <div id="game-window">
         <div id="game-container"></div>
+    </div>
+
+    <div id="monkey-container">
+        <img id="monkey-img" src="monkeystop.png" alt="Typing Monkey">
     </div>
 
     <div id="modal-overlay"></div>
@@ -134,35 +153,38 @@
             <h3 id="modal-title">Collected Words</h3>
             <button id="close-btn">&times;</button>
         </div>
-        <ul id="word-list">
-            </ul>
+        <ul id="word-list"></ul>
     </div>
 
     <script>
-        // 1,000개 이상의 영단어 데이터베이스 추출용 문자열
+        // 사전 데이터베이스
         const wordsString = "ability,able,about,above,accept,according,account,across,action,activity,actually,address,administration,admit,adult,affect,after,again,against,agency,agent,agree,agreement,ahead,allow,almost,alone,along,already,also,although,always,american,among,amount,analysis,animal,another,answer,anyone,anything,appear,apply,approach,area,argue,around,arrive,article,artist,assume,attack,attention,attorney,audience,author,authority,available,avoid,away,baby,back,blood,board,body,book,born,both,break,bring,brother,budget,build,building,business,call,camera,campaign,cancer,candidate,capital,care,career,carry,case,catch,cause,cell,center,central,century,certain,certainly,chair,challenge,chance,change,character,charge,check,child,choice,choose,church,citizen,city,civil,claim,class,clear,clearly,close,coach,cold,collection,college,color,come,commercial,common,community,company,compare,computer,concern,condition,conference,congress,consider,consumer,contain,continue,control,cost,could,country,couple,course,court,cover,create,crime,cultural,culture,current,customer,dark,data,daughter,dead,deal,death,debate,decade,decide,decision,deep,defense,degree,democrat,democratic,describe,design,despite,detail,determine,develop,development,die,difference,different,difficult,dinner,direction,director,discover,discuss,discussion,disease,doctor,door,down,draw,dream,drive,drop,drug,during,each,early,east,easy,edge,education,effect,effort,eight,either,election,else,employee,energy,enjoy,enough,enter,entire,environment,especially,establish,even,evening,event,ever,every,everybody,everyone,everything,evidence,exactly,example,executive,exist,expect,experience,expert,explain,factor,fail,fall,family,fast,father,fear,federal,feel,feeling,field,fight,figure,fill,film,final,finally,financial,find,fine,finger,finish,fire,firm,first,fish,five,floor,focus,follow,food,foot,force,foreign,forget,form,former,forward,four,free,friend,from,front,full,fund,future,game,garden,gas,general,generation,girl,give,glass,goal,good,government,great,green,ground,group,grow,growth,guess,hair,half,hand,hang,happen,happy,hard,have,head,health,hear,heart,heat,heavy,help,here,herself,high,himself,history,hold,hole,home,hope,hospital,hotel,hour,house,huge,human,hundred,husband,idea,identify,image,imagine,impact,important,improve,include,including,increase,indeed,indicate,individual,industry,information,inside,instead,institution,interest,interesting,international,interview,into,investment,involve,issue,item,join,just,keep,kill,kind,know,knowledge,land,language,large,last,late,later,laugh,lawyer,lead,leader,learning,least,leave,left,legal,less,letter,level,life,light,like,likely,line,list,listen,little,live,local,long,look,lose,loss,love,machine,magazine,main,maintain,major,majority,make,manage,management,manager,many,market,marriage,material,matter,maybe,mean,measure,media,medical,meet,meeting,member,memory,mention,message,method,middle,might,military,million,mind,minute,miss,mission,model,modern,moment,money,month,more,morning,most,mother,mouth,move,movement,movie,much,music,must,myself,name,nation,national,natural,nature,near,nearly,necessary,need,network,never,news,newspaper,next,nice,night,none,north,note,nothing,notice,number,occur,ocean,offer,office,officer,official,often,once,only,onto,open,operation,opportunity,option,order,organization,other,others,outside,over,owner,page,pain,painting,paper,parent,part,participant,particular,particularly,partner,party,pass,past,patient,pattern,peace,people,perform,performance,perhaps,period,person,personal,phone,physical,pick,picture,piece,place,plan,plant,play,player,point,police,policy,political,politics,poor,popular,population,position,positive,possible,power,practice,prepare,present,president,pressure,price,private,probably,problem,process,produce,product,production,professional,professor,program,project,property,protect,prove,provide,public,pull,purpose,push,quality,question,quickly,quite,race,radio,raise,range,rate,rather,reach,read,ready,real,reality,realize,really,reason,receive,recent,recently,recognize,record,reduce,reflect,region,relate,relationship,religious,remain,remember,remove,report,represent,republican,require,research,resource,respond,response,responsibility,rest,result,return,reveal,rich,right,rise,risk,road,rock,role,room,rule,safe,same,save,scene,school,science,scientist,score,season,seat,second,section,security,seek,seem,sell,send,senior,sense,series,serious,serve,service,set,seven,several,sexual,shake,share,shoot,short,shot,should,shoulder,show,side,sign,significant,similar,simple,simply,since,sing,single,sister,site,situation,size,skill,skin,small,smile,social,society,soldier,some,somebody,someone,something,sometimes,song,soon,sort,sound,source,south,southern,space,speak,special,specific,speech,spend,sport,spring,staff,stage,stand,standard,star,start,state,statement,station,stay,step,still,stock,stop,store,story,strategy,street,strong,structure,student,study,stuff,style,subject,success,successful,such,suddenly,suffer,suggest,summer,support,sure,surface,system,table,take,talk,task,team,technology,television,tell,term,test,than,that,their,them,themselves,then,theory,there,these,they,thing,think,third,this,those,though,thought,thousand,threat,three,through,throughout,throw,thus,time,today,together,tonight,total,tough,toward,town,trade,traditional,training,travel,treat,treatment,tree,trial,trip,trouble,true,truth,turn,type,under,understand,unit,until,upon,usually,value,various,very,victim,view,violence,visit,voice,vote,wait,walk,wall,want,warm,warn,wash,watch,water,wave,weapon,wear,week,weight,well,west,western,whatever,when,where,whether,which,while,white,whole,whom,whose,wide,wife,will,wind,window,wish,with,within,without,woman,wonder,word,work,worker,world,worry,would,write,writer,wrong,yard,yeah,year,young,your,yourself,apple,banana,orange,grape,strawberry,keyboard,mouse,monitor,laptop,screen,software,hardware,internet,website,browser,server,database,network,pixel,coding,logic,function,variable,string,array,object,class,method,error,debug,release,version,update,patch,click,scroll,touch,swipe,zoom,upload,download,search,engine,link,domain,cloud,mobile,battery,photo,video,audio,rhythm,beat,tempo,melody,harmony,chord,vocal,guitar,piano,drum,bass,synth,concert,ticket,crowd,album,track,record,vinyl,studio,microphone,speaker,headphone,broadcast,podcast,stream,live,channel,episode,season,series,actor,actress,director,script,plot,scene,drama,comedy,action,horror,thriller,romance,fantasy,scifi,animation,cartoon,comic,novel,poem,poet,chapter,character,hero,villain,magic,sword,shield,dragon,knight,castle,king,queen,prince,princess,royal,crown,throne,gold,silver,bronze,iron,steel,wood,stone,dirt,sand,plastic,cloth,fabric,cotton,silk,wool,leather,shoe,boot,sock,shirt,pant,dress,skirt,coat,jacket,glove,ring,clock,decade,past,present,future,tomorrow,yesterday,noon,afternoon,midnight,dawn,dusk,moon,planet,earth,mars,jupiter,saturn,galaxy,universe,astronaut,rocket,ship,alien,orbit,gravity,speed,light,color,yellow,purple,pink,brown,black,gray,shape,circle,square,triangle,line,point,volume,mass,tall,short,narrow,deep,shallow,high,cold,warm,cool,hard,soft,rough,smooth,heavy,fast,slow,quick,steady,weak,brave,scared,angry,calm,loud,quiet,deaf,blind,mute,dumb,smart,clever,wise,fool,crazy,sane,sick,awake,sleep,dream,nightmare,pillow,blanket,roof,floor,kitchen,bath,living,dining,yard,grass,leaf,branch,root,flower,seed,fruit,vegetable,meat,beef,pork,bread,cheese,milk,butter,salt,pepper,sugar,spice,sweet,sour,bitter,spicy,taste,smell,sight,sense,brain,lung,stomach,liver,kidney,bone,muscle,nail,face,nose,lip,tooth,tongue,neck,arm,thumb,chest,waist,knee,foot";
         const dictionary = wordsString.split(",").filter(word => word.length >= 3);
 
-        // 플랫 형광 컬러셋
         const flatNeonColors = ['#FF3366', '#33FFCC', '#33CCFF', '#CCFF33', '#FF9933', '#FF33FF'];
 
         const container = document.getElementById("game-container");
-        const popupBtn = document.getElementById("popup-btn");
+        const popupBtnContainer = document.getElementById("popup-btn-container");
+        const wordBadge = document.getElementById("word-badge");
         const modal = document.getElementById("word-modal");
         const overlay = document.getElementById("modal-overlay");
         const closeBtn = document.getElementById("close-btn");
         const wordListElement = document.getElementById("word-list");
+        const monkeyImg = document.getElementById("monkey-img");
 
         let charsData = []; 
         let currentIndex = 0; 
-        let collectedWords = []; // 수집된 단어 저장 배열
-        const charWidth = 45;    // CSS에서 설정한 span의 width 값
+        let collectedWords = []; 
+        const charWidth = 45;    
 
-        // 글자 스트림 추가 생성 함수 (무한 확장을 위해 필요할 때마다 호출)
+        // 🐒 원숭이 애니메이션 제어 변수들
+        let currentFrame = 0;
+        let monkeyTimer = null;
+
+        // 글자 스트림 생성
         function appendStream(count) {
             let i = 0;
             while (i < count) {
-                // 15% 확률로 사전에 있는 단어 스폰
                 if (Math.random() < 0.15) {
                     let word = dictionary[Math.floor(Math.random() * dictionary.length)];
                     for (let char of word) {
@@ -171,15 +193,12 @@
                     i += word.length;
                     continue;
                 }
-                
-                // 85% 확률로 순수 랜덤 알파벳 스폰
                 let randomChar = String.fromCharCode(97 + Math.floor(Math.random() * 26));
                 createSpan(randomChar);
                 i++;
             }
         }
 
-        // 개별 글자 span 생성 및 DOM 추가
         function createSpan(char) {
             let span = document.createElement("span");
             span.innerText = char;
@@ -189,50 +208,56 @@
             charsData.push({
                 char: char,
                 element: span,
-                colorOverridden: false // 형광색이 이미 칠해졌는지 여부
+                colorOverridden: false 
             });
         }
 
-        // 수집된 단어를 팝업 리스트에 추가하고 카운트 올리는 함수
+        // 단어 획득 시 처리 (배지 숫자 업데이트)
         function collectWord(word, color) {
             collectedWords.push(word);
-            popupBtn.innerText = `📜 WORDS (${collectedWords.length})`;
+            wordBadge.innerText = collectedWords.length; // 배지 숫자 갱신
             
-            // 팝업 리스트 엘리먼트 생성
             const li = document.createElement("li");
             li.innerText = word;
-            li.style.color = color; // 획득했을 때의 형광색 그대로 보관함에 표시
+            li.style.color = color; 
             wordListElement.appendChild(li);
         }
 
         // 키보드 입력 이벤트
         window.addEventListener("keydown", (e) => {
-            // 팝업창이 열려있거나 남은 글자가 없으면 타이핑 중단
             if (modal.style.display === "block" || currentIndex >= charsData.length) return; 
-            if (e.key.length > 1) return; // 특수키 방지
+            if (e.key.length > 1) return; 
 
             const key = e.key.toLowerCase();
             
-            // 현재 타이핑해야 할 글자와 일치하면
             if (key === charsData[currentIndex].char) {
                 let currentData = charsData[currentIndex];
                 
-                // 이미 형광색으로 칠해진 상태가 아니라면 흰색으로 변경
                 if (!currentData.colorOverridden) {
                     currentData.element.style.color = '#ffffff'; 
                 }
                 
                 currentIndex++;
-                
-                // 화면 한 칸 왼쪽으로 슬라이딩 (현재 인덱스만큼 마이너스 밀기)
-                container.style.transform = `translateX(${-currentIndex * charWidth}px) `;
+                container.style.transform = `translateX(${-currentIndex * charWidth}px)`;
 
-                // 남은 글자가 40개 미만이면 미리 100개 더 생성 (무한 확장)
+                // 🐒 원숭이 타자 프레임 애니메이션 처리
+                clearTimeout(monkeyTimer); // 대기 상태 복귀 타이머 초기화
+                
+                currentFrame = (currentFrame % 4) + 1; // 1 -> 2 -> 3 -> 4 -> 1 반복
+                monkeyImg.src = `monkeytypo${currentFrame}.png`; // 깃헙 패스로 변환될 부분
+
+                // 타자를 멈추고 250ms가 지나면 가만히 있는 이미지로 복귀
+                monkeyTimer = setTimeout(() => {
+                    monkeyImg.src = "monkeystop.png";
+                    currentFrame = 0; // 프레임 초기화
+                }, 250);
+
+                // 무한 스트림 채우기
                 if (charsData.length - currentIndex < 40) {
                     appendStream(100);
                 }
                 
-                // 단어 완성 역추적 체크
+                // 단어 매칭 체크
                 for (let word of dictionary) {
                     let len = word.length;
                     
@@ -245,18 +270,15 @@
                             }
                         }
                         
-                        // 우연히 단어가 완성되었다면!
                         if (match) {
                             let chosenColor = flatNeonColors[Math.floor(Math.random() * flatNeonColors.length)];
                             
-                            // 해당 단어 영역 형광색으로 플랫하게 덮어쓰기
                             for (let j = 0; j < len; j++) {
                                 let targetData = charsData[currentIndex - len + j];
                                 targetData.element.style.color = chosenColor;
-                                targetData.colorOverridden = true; // 이후 타이핑에 색이 깨지지 않게 락(lock)
+                                targetData.colorOverridden = true; 
                             }
                             
-                            // 팝업 보관함에 단어 추가
                             collectWord(word, chosenColor);
                             break; 
                         }
@@ -265,8 +287,8 @@
             }
         });
 
-        /* 팝업 모달 이벤트 제어 */
-        popupBtn.addEventListener("click", () => {
+        /* 팝업 모달 이벤트 */
+        popupBtnContainer.addEventListener("click", () => {
             modal.style.display = "block";
             overlay.style.display = "block";
         });
@@ -278,7 +300,6 @@
         closeBtn.addEventListener("click", closeModal);
         overlay.addEventListener("click", closeModal);
 
-        // 첫 게임 세팅 (여유 있게 100글자 먼저 생성)
         appendStream(100);
     </script>
 </body>
