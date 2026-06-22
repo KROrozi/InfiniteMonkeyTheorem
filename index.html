@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinite Stream Typing Game - Easter Egg Edition</title>
+    <title>Infinite Stream Typing Game - Mega Easter Egg Edition</title>
     <style>
         /* 기본 UI 설정 */
         body {
@@ -109,51 +109,55 @@
         }
 
         /* ========================================================
-           ✨ 이스터에그 연출용 CSS 애니메이션 영역 
+           ✨ 이스터에그 연출용 CSS 애니메이션 영역 (500px 이상 & 모션 변경)
         ======================================================== */
         
-        /* [bppc 연출] 우측에서 좌측으로 일직선 비행 */
+        /* 🚀 [bppc 연출] 가로세로 최소 500px 확보 및 회전 없이 완벽한 직선 비행 */
         .ee-bppc-flying {
             position: fixed;
-            width: 60px; height: auto;
+            width: 550px; height: 550px; /* 500px 이상 스케일업 */
+            object-fit: contain;
             z-index: 99;
             pointer-events: none;
-            animation: bppcFlyLeft 2s linear forwards;
+            animation: bppcLinearLeft 2.2s linear forwards;
         }
-        @keyframes bppcFlyLeft {
-            0% { left: 105vw; transform: translateY(-50%) rotate(0deg); }
-            100% { left: -10vw; transform: translateY(-50%) rotate(-360deg); }
+        @keyframes bppcLinearLeft {
+            0% { left: 105vw; transform: translateY(-50%); }
+            100% { left: -600px; transform: translateY(-50%); } /* 이미지 크기를 감안해 완전히 화면 밖으로 퇴장 */
         }
 
-        /* [spoon 연출] 좌우에서 튀어나와 댄스 춘 후 교차 퇴장 */
+        /* 🥄 [spoon 연출] 가로세로 최소 500px 확보 및 흔들림 없는 두 번 교차 모션 */
         .ee-spoon-asset {
             position: fixed;
-            width: 70px; height: auto;
+            width: 520px; height: 520px; /* 500px 이상 스케일업 */
+            object-fit: contain;
             z-index: 99;
             pointer-events: none;
-            top: var(--start-y);
+            top: 50vh; /* 화면 상하 중앙 배치 */
         }
-        /* 왼쪽 출발 스푼 애니메이션 */
+        
+        /* 왼쪽 출발 스푼: 화면 밖(-600px) -> 중앙 진입 -> 2번 교차 왕복 -> 우측 화면 밖(105vw) 퇴장 */
         .ee-spoon-left {
-            animation: spoonDanceLeft 3s ease-in-out forwards;
+            animation: spoonCrossLeft 3.5s ease-in-out forwards;
         }
-        @keyframes spoonDanceLeft {
-            0%   { left: -10vw; transform: translateY(-50%) rotate(0deg); }
-            25%  { left: 40vw;  transform: translateY(-50%) rotate(15deg); }   /* 중앙 부근 진입 */
-            45%  { left: 35vw;  transform: translateY(-50%) rotate(-15deg); }  /* 흔들 1 */
-            65%  { left: 45vw;  transform: translateY(-50%) rotate(15deg); }   /* 흔들 2 */
-            100% { left: 110vw; transform: translateY(-50%) rotate(720deg); }  /* 우측 탈출 */
+        @keyframes spoonCrossLeft {
+            0%   { left: -600px; transform: translateY(-50%); }
+            25%  { left: 35vw;   transform: translateY(-50%); } /* 1차 접근 */
+            45%  { left: 20vw;   transform: translateY(-50%); } /* 뒤로 살짝 빠졌다가 */
+            65%  { left: 40vw;   transform: translateY(-50%); } /* 2차 교차 돌격 */
+            100% { left: 105vw;  transform: translateY(-50%); } /* 우측 화면 밖 탈출 */
         }
-        /* 오른쪽 출발 스푼 애니메이션 */
+
+        /* 오른쪽 출발 스푼 (좌우반전): 화면 밖(105vw) -> 중앙 진입 -> 2번 교차 왕복 -> 좌측 화면 밖(-600px) 퇴장 */
         .ee-spoon-right {
-            animation: spoonDanceRight 3s ease-in-out forwards;
+            animation: spoonCrossRight 3.5s ease-in-out forwards;
         }
-        @keyframes spoonDanceRight {
-            0%   { left: 110vw; transform: translateY(-50%) rotate(0deg); }
-            25%  { left: 60vw;  transform: translateY(-50%) rotate(-15deg); }  /* 중앙 부근 진입 */
-            45%  { left: 65vw;  transform: translateY(-50%) rotate(15deg); }   /* 흔들 1 */
-            65%  { left: 55vw;  transform: translateY(-50%) rotate(-15deg); }  /* 흔들 2 */
-            100% { left: -10vw;  transform: translateY(-50%) rotate(-720deg); } /* 좌측 탈출 */
+        @keyframes spoonCrossRight {
+            0%   { left: 105vw;  transform: translateY(-50%) scaleX(-1); }
+            25%  { left: 50vw;   transform: translateY(-50%) scaleX(-1); } /* 1차 접근 */
+            45%  { left: 65vw;   transform: translateY(-50%) scaleX(-1); } /* 뒤로 빠졌다가 */
+            65%  { left: 45vw;   transform: translateY(-50%) scaleX(-1); } /* 2차 교차 돌격 */
+            100% { left: -600px; transform: translateY(-50%) scaleX(-1); } /* 좌측 화면 밖 탈출 */
         }
 
         /* 5. 팝업창(모달) 및 리스트 내부 아이콘 스타일 */
@@ -229,10 +233,9 @@
 
     <script>
         // 사전 데이터베이스
-        const wordsString = "ability,able,about,above,accept,according,account,across,action,activity,actually,address,administration,admit,adult,affect,after,again,against,agency,agent,agree,agreement,ahead,allow,almost,alone,along,already,also,although,always,american,among,amount,analysis,animal,another,answer,anyone,anything,appear,apply,approach,area,argue,around,arrive,article,artist,assume,attack,attention,attorney,audience,author,authority,available,avoid,away,baby,back,blood,board,body,book,born,both,break,bring,brother,budget,build,building,business,call,camera,campaign,cancer,candidate,capital,care,career,carry,case,catch,cause,cell,center,central,century,certain,certainly,chair,challenge,chance,change,character,charge,check,child,choice,choose,church,citizen,city,civil,claim,class,clear,clearly,close,coach,cold,collection,college,color,come,commercial,common,community,company,compare,computer,concern,condition,conference,congress,consider,consumer,contain,continue,control,cost,could,country,couple,course,court,cover,create,crime,cultural,culture,current,customer,dark,data,daughter,dead,deal,death,debate,decade,decide,decision,deep,defense,degree,democrat,democratic,describe,design,despite,detail,determine,develop,development,die,difference,different,difficult,dinner,direction,director,discover,discuss,discussion,disease,doctor,door,down,draw,dream,drive,drop,drug,during,each,early,east,easy,edge,education,effect,effort,eight,either,election,else,employee,energy,enjoy,enough,enter,entire,environment,especially,establish,even,evening,event,ever,every,everybody,everyone,everything,evidence,exactly,example,executive,exist,expect,experience,expert,explain,factor,fail,fall,family,fast,father,fear,federal,feel,feeling,field,fight,figure,fill,film,final,finally,financial,find,fine,finger,finish,fire,firm,first,fish,five,floor,focus,follow,food,foot,force,foreign,forget,form,former,forward,four,free,friend,from,front,full,fund,future,game,garden,gas,general,generation,girl,give,glass,goal,good,government,great,green,ground,group,grow,growth,guess,hair,half,hand,hang,happen,happy,hard,have,head,health,hear,heart,heat,heavy,help,here,herself,high,himself,history,hold,hole,home,hope,hospital,hotel,hour,house,huge,human,hundred,husband,idea,identify,image,imagine,impact,important,improve,include,including,increase,indeed,indicate,individual,industry,information,inside,instead,institution,interest,interesting,international,interview,into,investment,involve,issue,item,join,just,keep,kill,kind,know,knowledge,land,language,large,last,late,later,laugh,lawyer,lead,leader,learning,least,leave,left,legal,less,letter,level,life,light,like,likely,line,list,listen,little,live,local,long,look,lose,loss,love,machine,magazine,main,maintain,major,majority,make,manage,management,manager,many,market,marriage,material,matter,maybe,mean,measure,media,medical,meet,meeting,member,memory,mention,message,method,middle,might,military,million,mind,minute,miss,mission,model,modern,moment,money,month,more,morning,most,mother,mouth,move,movement,movie,much,music,must,myself,name,nation,national,natural,nature,near,nearly,necessary,need,network,never,news,newspaper,next,nice,night,none,north,note,nothing,notice,number,occur,ocean,offer,office,officer,official,often,once,only,onto,open,operation,opportunity,option,order,organization,other,others,outside,over,owner,page,pain,painting,paper,parent,part,participant,particular,particularly,partner,party,pass,past,patient,pattern,peace,people,perform,performance,perhaps,period,person,personal,phone,physical,pick,picture,piece,place,plan,plant,play,player,point,police,policy,political,politics,poor,popular,population,position,positive,possible,power,practice,prepare,present,president,pressure,price,private,probably,problem,process,produce,product,production,professional,professor,program,project,property,protect,prove,provide,public,pull,purpose,push,quality,question,quickly,quite,race,radio,raise,range,rate,rather,reach,read,ready,real,reality,realize,really,reason,receive,recent,recently,recognize,record,reduce,reflect,region,relate,relationship,religious,remain,remember,remove,report,represent,republican,require,research,resource,respond,response,responsibility,rest,result,return,reveal,rich,right,rise,risk,road,rock,role,room,rule,safe,same,save,scene,school,science,scientist,score,season,seat,second,section,security,seek,seem,sell,send,senior,sense,series,serious,serve,service,set,seven,several,sexual,shake,share,shoot,short,shot,should,shoulder,show,side,sign,significant,similar,simple,simply,since,sing,single,sister,site,situation,size,skill,skin,small,smile,social,society,soldier,some,somebody,someone,something,sometimes,song,soon,sort,sound,source,south,southern,space,speak,special,specific,speech,spend,sport,spring,staff,stage,stand,standard,star,start,state,statement,station,stay,step,still,stock,stop,store,story,strategy,street,strong,structure,student,study,stuff,style,subject,success,successful,such,suddenly,suffer,suggest,summer,support,sure,surface,system,table,take,talk,task,team,technology,television,tell,term,test,than,that,their,them,themselves,then,theory,there,these,they,thing,think,third,this,those,though,thought,thousand,threat,three,through,throughout,throw,thus,time,today,together,tonight,total,tough,toward,town,trade,traditional,training,travel,treat,treatment,tree,trial,trip,trouble,true,truth,turn,type,under,understand,unit,until,upon,usually,value,various,very,victim,view,violence,visit,voice,vote,wait,walk,wall,want,warm,warn,wash,watch,water,wave,weapon,wear,week,weight,well,west,western,whatever,when,where,whether,which,while,white,whole,whom,whose,wide,wife,will,wind,window,wish,with,within,without,woman,wonder,word,work,worker,world,worry,would,write,writer,wrong,yard,yeah,year,young,your,yourself,apple,banana,orange,grape,strawberry,keyboard,mouse,monitor,laptop,screen,software,hardware,internet,website,browser,server,database,network,pixel,coding,logic,function,variable,string,array,object,class,method,error,debug,release,version,update,patch,click,scroll,touch,swipe,zoom,upload,download,search,engine,link,domain,cloud,mobile,battery,photo,video,audio,rhythm,beat,tempo,melody,harmony,chord,vocal,guitar,piano,drum,bass,synth,concert,ticket,crowd,album,track,record,vinyl,studio,microphone,speaker,headphone,broadcast,podcast,stream,live,channel,episode,season,series,actor,actress,director,script,plot,scene,drama,comedy,action,horror,thriller,romance,fantasy,scifi,animation,cartoon,comic,novel,poem,poet,chapter,character,hero,villain,magic,sword,shield,dragon,knight,castle,king,queen,prince,princess,royal,crown,throne,gold,silver,bronze,iron,steel,wood,stone,dirt,sand,plastic,cloth,fabric,cotton,silk,wool,leather,shoe,boot,sock,shirt,pant,dress,skirt,coat,jacket,glove,ring,clock,decade,past,present,future,tomorrow,yesterday,noon,afternoon,midnight,dawn,dusk,moon,planet,earth,mars,jupiter,saturn,galaxy,universe,astronaut,rocket,ship,alien,orbit,gravity,speed,light,color,yellow,purple,pink,brown,black,gray,shape,circle,square,triangle,line,point,volume,mass,tall,short,narrow,deep,shallow,high,cold,warm,cool,hard,soft,rough,smooth,heavy,fast,slow,quick,steady,weak,brave,scared,angry,calm,loud,quiet,deaf,blind,mute,dumb,smart,clever,wise,fool,crazy,sane,sick,awake,sleep,dream,nightmare,pillow,blanket,roof,floor,kitchen,bath,living,dining,yard,grass,leaf,branch,root,flower,seed,fruit,vegetable,meat,beef,pork,bread,cheese,milk,butter,salt,pepper,sugar,spice,sweet,sour,bitter,spicy,taste,smell,sight,sense,brain,lung,stomach,liver,kidney,bone,muscle,nail,face,nose,lip,tooth,tongue,neck,arm,thumb,chest,waist,knee,foot";
+        const wordsString = "ability,able,about,above,accept,according,account,across,action,activity,actually,address,administration,admit,adult,affect,after,again,against,agency,agent,agree,agreement,ahead,allow,almost,alone,along,already,also,although,always,american,among,amount,analysis,animal,another,answer,anyone,anything,appear,apply,approach,area,argue,around,arrive,article,artist,assume,attack,attention,attorney,audience,author,authority,available,avoid,away,baby,back,blood,board,body,book,born,both,break,bring,brother,budget,build,building,business,call,camera,campaign,cancer,candidate,capital,care,career,carry,case,catch,cause,cell,center,central,century,certain,certainly,chair,challenge,chance,change,character,charge,check,child,choice,choose,church,citizen,city,civil,claim,class,clear,clearly,close,coach,cold,collection,college,color,come,commercial,common,community,company,compare,computer,concern,condition,conference,congress,consider,consumer,contain,continue,control,cost,could,country,couple,course,court,cover,create,crime,cultural,culture,current,customer,dark,data,daughter,dead,deal,death,debate,decade,decide,decision,deep,defense,degree,democrat,democratic,describe,design,despite,detail,determine,develop,development,die,difference,different,difficult,dinner,direction,director,discover,discuss,discussion,disease,doctor,door,down,draw,dream,drive,drop,drug,during,each,early,east,easy,edge,education,effect,effort,eight,either,election,else,employee,energy,enjoy,enough,enter,entire,environment,especially,establish,even,evening,event,ever,every,everybody,everyone,everything,evidence,exactly,example,executive,exist,expect,experience,expert,explain,factor,fail,fall,family,fast,father,fear,federal,feel,feeling,field,fight,figure,fill,film,final,finally,financial,find,fine,finger,finish,fire,firm,first,fish,five,floor,focus,follow,food,foot,force,foreign,forget,form,former,forward,four,free,friend,from,front,full,fund,future,game,garden,gas,general,generation,girl,give,glass,goal,good,government,great,green,ground,group,grow,growth,guess,hair,half,hand,hang,happen,happy,hard,have,head,health,hear,heart,heat,heavy,help,here,herself,high,himself,history,hold,hole,home,hope,hospital,hotel,hour,house,huge,human,hundred,husband,idea,identify,image,imagine,impact,important,improve,include,including,increase,indeed,indicate,individual,industry,information,inside,instead,institution,interest,interesting,international,interview,into,investment,involve,issue,item,join,just,keep,kill,kind,know,knowledge,land,language,large,last,late,later,laugh,lawyer,lead,leader,learning,least,leave,left,legal,less,letter,level,life,light,like,likely,line,list,listen,little,live,local,long,look,lose,loss,love,machine,magazine,main,maintain,major,majority,make,manage,management,manager,many,market,marriage,material,matter,maybe,mean,measure,media,medical,meet,meeting,member,member,memory,mention,message,method,middle,might,military,million,mind,minute,miss,mission,model,modern,moment,money,month,more,morning,most,mother,mouth,move,movement,movie,much,music,must,myself,name,nation,national,natural,nature,near,nearly,necessary,need,network,never,news,newspaper,next,nice,night,none,north,note,nothing,notice,number,occur,ocean,offer,office,officer,official,often,once,only,onto,open,operation,opportunity,option,order,organization,other,others,outside,over,owner,page,pain,painting,paper,parent,part,participant,particular,particularly,partner,party,pass,past,patient,pattern,peace,people,perform,performance,perhaps,period,person,personal,phone,physical,pick,picture,piece,place,plan,plant,play,player,point,police,policy,political,politics,poor,popular,population,position,positive,possible,power,practice,prepare,present,president,pressure,price,private,probably,problem,process,produce,product,production,professional,professor,program,project,property,protect,prove,provide,public,pull,purpose,push,quality,question,quickly,quite,race,radio,raise,range,rate,rather,reach,read,ready,real,reality,realize,really,reason,receive,recent,recently,recognize,record,reduce,reflect,region,relate,relationship,religious,remain,remember,remove,report,represent,republican,require,research,resource,respond,response,responsibility,rest,result,return,reveal,rich,right,rise,risk,road,rock,role,room,rule,safe,same,save,scene,school,science,scientist,score,season,seat,second,section,security,seek,seem,sell,send,senior,sense,series,serious,serve,service,set,seven,several,sexual,shake,share,shoot,short,shot,should,shoulder,show,side,sign,significant,similar,simple,simply,since,sing,single,sister,site,situation,size,skill,skin,small,smile,social,society,soldier,some,somebody,someone,something,sometimes,song,soon,sort,sound,source,south,southern,space,speak,special,specific,speech,spend,sport,spring,staff,stage,stand,standard,star,start,state,statement,station,stay,step,still,stock,stop,store,story,strategy,street,strong,structure,student,study,stuff,style,subject,success,successful,such,suddenly,suffer,suggest,summer,support,sure,surface,system,table,take,talk,task,team,technology,television,tell,term,test,than,that,their,them,themselves,then,theory,there,these,they,thing,think,third,this,those,though,thought,thousand,threat,three,through,throughout,throw,thus,time,today,together,tonight,total,tough,toward,town,trade,traditional,training,travel,treat,treatment,tree,trial,trip,trouble,true,truth,turn,type,under,understand,unit,until,upon,usually,value,various,very,victim,view,violence,visit,voice,vote,wait,walk,wall,want,warm,warn,wash,watch,water,wave,weapon,wear,week,weight,well,west,western,whatever,when,where,whether,which,while,white,whole,whom,whose,wide,wife,will,wind,window,wish,with,within,without,woman,wonder,word,work,worker,world,worry,would,write,writer,wrong,yard,yeah,year,young,your,yourself,apple,banana,orange,grape,strawberry,keyboard,mouse,monitor,laptop,screen,software,hardware,internet,website,browser,server,database,network,pixel,coding,logic,function,variable,string,array,object,class,method,error,debug,release,version,update,patch,click,scroll,touch,swipe,zoom,upload,download,search,engine,link,domain,cloud,mobile,battery,photo,video,audio,rhythm,beat,tempo,melody,harmony,chord,vocal,guitar,piano,drum,bass,synth,concert,ticket,crowd,album,track,record,vinyl,studio,microphone,speaker,headphone,broadcast,podcast,stream,live,channel,episode,season,series,actor,actress,director,script,plot,scene,drama,comedy,action,horror,thriller,romance,fantasy,scifi,animation,cartoon,comic,novel,poem,poet,chapter,character,hero,villain,magic,sword,shield,dragon,knight,castle,king,queen,prince,princess,royal,crown,throne,gold,silver,bronze,iron,steel,wood,stone,dirt,sand,plastic,cloth,fabric,cotton,silk,wool,leather,shoe,boot,sock,shirt,pant,dress,skirt,coat,jacket,glove,ring,clock,decade,past,present,future,tomorrow,yesterday,noon,afternoon,midnight,dawn,dusk,moon,planet,earth,mars,jupiter,saturn,galaxy,universe,astronaut,rocket,ship,alien,orbit,gravity,speed,light,color,yellow,purple,pink,brown,black,gray,shape,circle,square,triangle,line,point,volume,mass,tall,short,narrow,deep,shallow,high,cold,warm,cool,hard,soft,rough,smooth,heavy,fast,slow,quick,steady,weak,brave,scared,angry,calm,loud,quiet,deaf,blind,mute,dumb,smart,clever,wise,fool,crazy,sane,sick,awake,sleep,dream,nightmare,pillow,blanket,roof,floor,kitchen,bath,living,dining,yard,grass,leaf,branch,root,flower,seed,fruit,vegetable,meat,beef,pork,bread,cheese,milk,butter,salt,pepper,sugar,spice,sweet,sour,bitter,spicy,taste,smell,sight,sense,brain,lung,stomach,liver,kidney,bone,muscle,nail,face,nose,lip,tooth,tongue,neck,arm,thumb,chest,waist,knee,foot";
         const dictionary = wordsString.split(",").filter(word => word.length >= 3);
 
-        // 🌟 이스터에그용 단어 목록 및 아이콘 매핑 데이터베이스
         const easterEggs = {
             "bppc": { img: "image/bppcimg.png", color: "#00FF66" },
             "spoon": { img: "image/spoonimg.png", color: "#FF00FF" }
@@ -257,15 +260,12 @@
         let currentFrame = 0;
         let monkeyTimer = null;
 
-        // 이스터에그 주기용 카운터 (100~150자 사이 타수 결정)
         let nextEeTriggerCount = Math.floor(Math.random() * 51) + 100; 
         let charCounterSinceLastEe = 0;
 
-        // 글자 스트림 생성
         function appendStream(count) {
             let i = 0;
             while (i < count) {
-                // 이스터에그 주기 조건 충족 시 강제 삽입
                 if (charCounterSinceLastEe >= nextEeTriggerCount) {
                     const eeKeys = Object.keys(easterEggs);
                     const randomEe = eeKeys[Math.floor(Math.random() * eeKeys.length)];
@@ -275,7 +275,6 @@
                     }
                     i += randomEe.length;
                     
-                    // 주기 리셋
                     charCounterSinceLastEe = 0;
                     nextEeTriggerCount = Math.floor(Math.random() * 51) + 100; 
                     continue;
@@ -311,7 +310,6 @@
             });
         }
 
-        // 🍌 기본 바나나 낙하 연출
         function launchBanana(wordLength) {
             const flyingBanana = document.createElement("img");
             flyingBanana.src = "image/banana.png";
@@ -337,54 +335,46 @@
         }
 
         // ========================================================
-        // 🎬 이스터에그 실시간 인터랙션 구동기 (추가하기 쉬운 확장구조)
+        // 🎬 이스터에그 인터랙션 구동 장치 (수정 완료)
         // ========================================================
         function triggerEasterEggInteraction(word) {
             if (word === "bppc") {
-                // bppcimg.png 7~8개가 약간의 시차와 높낮이를 두고 우측에서 좌측으로 비행
-                const spawnCount = 7 + Math.floor(Math.random() * 2); // 7~8개
+                const spawnCount = 7 + Math.floor(Math.random() * 2); 
                 for (let k = 0; k < spawnCount; k++) {
                     setTimeout(() => {
                         const img = document.createElement("img");
                         img.src = easterEggs["bppc"].img;
                         img.className = "ee-bppc-flying";
-                        // Y축 높낮이 랜덤 분산 (화면 상하 20vh ~ 80vh 사이)
-                        img.style.top = `${20 + Math.random() * 60}vh`;
+                        // 거대해진 크기를 고려하여 15vh~75vh 사이로 상하 폭 배치 안정화
+                        img.style.top = `${15 + Math.random() * 60}vh`;
                         document.body.appendChild(img);
 
-                        setTimeout(() => img.remove(), 2000); // 애니메이션 시간 종료 후 제거
-                    }, k * 150); // 0.15초 간격 순차 스폰
+                        // 애니메이션이 끝나 완전히 화면 밖(-600px)으로 나간 시점(2.2초)에 브라우저에서 제거
+                        setTimeout(() => img.remove(), 2200); 
+                    }, k * 180); // 순차적 돌격감 유지를 위한 스폰 시차
                 }
             } 
             else if (word === "spoon") {
-                // 왼쪽에 2개, 오른쪽에 2개 동시 출격 후 정중앙 교차 댄스 연출
-                const yPositions = ["30vh", "60vh"]; // 겹치지 않게 위아래 한 쌍씩
-                
-                yPositions.forEach(yPos => {
-                    // 왼쪽팀 생성
-                    const spoonL = document.createElement("img");
-                    spoonL.src = easterEggs["spoon"].img;
-                    spoonL.className = "ee-spoon-asset ee-spoon-left";
-                    spoonL.style.setProperty('--start-y', yPos);
-                    document.body.appendChild(spoonL);
+                // 🥄 완전히 화면 왼쪽 밖에서 나오는 오리지널 대형 스푼
+                const spoonL = document.createElement("img");
+                spoonL.src = easterEggs["spoon"].img;
+                spoonL.className = "ee-spoon-asset ee-spoon-left";
+                document.body.appendChild(spoonL);
 
-                    // 오른쪽팀 생성
-                    const spoonR = document.createElement("img");
-                    spoonR.src = easterEggs["spoon"].img;
-                    spoonR.className = "ee-spoon-asset ee-spoon-right";
-                    spoonR.style.setProperty('--start-y', yPos);
-                    document.body.appendChild(spoonR);
+                // 🥄 완전히 화면 오른쪽 밖에서 나오는 좌우 반전 대형 스푼
+                const spoonR = document.createElement("img");
+                spoonR.src = easterEggs["spoon"].img;
+                spoonR.className = "ee-spoon-asset ee-spoon-right";
+                document.body.appendChild(spoonR);
 
-                    // 3초 후 애니메이션 종료되면 자동 삭제
-                    setTimeout(() => {
-                        spoonL.remove();
-                        spoonR.remove();
-                    }, 3000);
-                });
+                // 왕복 교차 댄스 애니메이션 시간(3.5초)이 끝난 후 완전히 화면 밖으로 이탈하면 삭제
+                setTimeout(() => {
+                    spoonL.remove();
+                    spoonR.remove();
+                }, 3500);
             }
         }
 
-        // 단어 획득 내부 처리 (이스터에그 포함)
         function collectWord(word, color, isEE = false) {
             collectedWords.push({ name: word, color: color, isEE: isEE });
             wordBadge.innerText = collectedWords.length; 
@@ -392,12 +382,10 @@
             const li = document.createElement("li");
             li.style.color = color;
 
-            // 텍스트 노드 추가
             const textSpan = document.createElement("span");
             textSpan.innerText = word;
             li.appendChild(textSpan);
 
-            // 이스터에그 단어라면 전용 미니 PNG 아이콘을 우측에 강제 탑재
             if (isEE && easterEggs[word]) {
                 const eeIcon = document.createElement("img");
                 eeIcon.src = easterEggs[word].img;
@@ -438,7 +426,6 @@
                     appendStream(100);
                 }
                 
-                // 1. 🔥 우선순위 1번: 이스터에그 매칭 우선 체크
                 let eeFound = false;
                 for (let eeWord in easterEggs) {
                     let len = eeWord.length;
@@ -458,12 +445,8 @@
                                 targetData.colorOverridden = true; 
                             }
                             
-                            // 이스터에그 특수 효과 연출 발사!
                             triggerEasterEggInteraction(eeWord);
-                            // 일반 바나나도 튕겨내기 원하시면 아래 주석을 해제하세요
                             launchBanana(len); 
-                            
-                            // 전용 수집품 저장
                             collectWord(eeWord, chosenColor, true);
                             eeFound = true;
                             break;
@@ -471,7 +454,6 @@
                     }
                 }
 
-                // 2. 이스터에그가 매칭되지 않았다면 기존 일반 단어 매칭 진행
                 if (!eeFound) {
                     for (let word of dictionary) {
                         let len = word.length;
