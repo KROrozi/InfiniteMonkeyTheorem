@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinite Stream Typing Game - Big Monkey Edition</title>
+    <title>Infinite Stream Typing Game - Gravity Banana Edition</title>
     <style>
         /* 기본 UI 설정 */
         body {
@@ -79,7 +79,7 @@
             transition: color 0.08s ease-in-out;
         }
 
-        /* 3. 하단 원숭이 이미지 영역 (크기 2배 확대 및 고정) */
+        /* 3. 하단 원숭이 이미지 영역 */
         #monkey-container {
             margin-top: 20px;
             display: flex;
@@ -87,14 +87,44 @@
             align-items: center;
         }
         #monkey-img {
-            width: 360px;         /* 기존 180px에서 2배인 360px로 확대 */
-            height: 360px;        /* 세로 크기도 고정하여 프레임 전환 시 들썩임 방지 */
-            object-fit: contain;  /* 이미지 비율을 유지하면서 고정된 상자 안에 깔끔하게 맞춤 */
+            width: 360px;         
+            height: 360px;        
+            object-fit: contain;  
             image-rendering: pixelated; 
             user-select: none;
         }
 
-        /* 4. 팝업창(모달) 스타일 */
+        /* 4. 중력 낙하 바나나 오브젝트 CSS */
+        .flying-banana {
+            position: fixed;
+            z-index: 100;
+            pointer-events: none;
+            image-rendering: pixelated;
+            animation: tossAndFall 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes tossAndFall {
+            0% {
+                left: 50%;
+                top: 60vh; 
+                transform: translate(-50%, -50%) rotate(0deg);
+                opacity: 0;
+            }
+            15% {
+                opacity: 1;
+            }
+            35% {
+                top: var(--peak-y); 
+            }
+            100% {
+                top: 110vh; 
+                left: var(--target-x);
+                transform: translate(-50%, -50%) rotate(var(--target-rot));
+                opacity: 0;
+            }
+        }
+
+        /* 5. 팝업창(모달) 스타일 */
         #word-modal {
             display: none; 
             position: fixed;
@@ -165,6 +195,8 @@
         const flatNeonColors = ['#FF3366', '#33FFCC', '#33CCFF', '#CCFF33', '#FF9933', '#FF33FF'];
 
         const container = document.getElementById("game-container");
+        
+        // ⚠️ 이 부분이 낙타 표기법(popupBtnContainer)으로 안전하게 수정되었습니다.
         const popupBtnContainer = document.getElementById("popup-btn-container");
         const wordBadge = document.getElementById("word-badge");
         const modal = document.getElementById("word-modal");
@@ -178,11 +210,9 @@
         let collectedWords = []; 
         const charWidth = 45;    
 
-        // 원숭이 애니메이션 제어 변수
         let currentFrame = 0;
         let monkeyTimer = null;
 
-        // 글자 스트림 생성
         function appendStream(count) {
             let i = 0;
             while (i < count) {
@@ -213,7 +243,30 @@
             });
         }
 
-        // 단어 획득 처리
+        function launchBanana(wordLength) {
+            const flyingBanana = document.createElement("img");
+            flyingBanana.src = "image/banana.png";
+            flyingBanana.className = "flying-banana";
+            
+            const bananaSize = 35 + (wordLength * 12); 
+            flyingBanana.style.width = `${bananaSize}px`;
+            flyingBanana.style.height = "auto";
+            
+            const targetX = 15 + Math.random() * 70; 
+            const peakY = 30 + Math.random() * 15;
+            const targetRot = (Math.random() - 0.5) * 1080; 
+
+            flyingBanana.style.setProperty('--target-x', `${targetX}vw`);
+            flyingBanana.style.setProperty('--peak-y', `${peakY}vh`);
+            flyingBanana.style.setProperty('--target-rot', `${targetRot}deg`);
+
+            document.body.appendChild(flyingBanana);
+
+            setTimeout(() => {
+                flyingBanana.remove();
+            }, 1000);
+        }
+
         function collectWord(word, color) {
             collectedWords.push(word);
             wordBadge.innerText = collectedWords.length; 
@@ -224,7 +277,6 @@
             wordListElement.appendChild(li);
         }
 
-        // 키보드 입력 이벤트
         window.addEventListener("keydown", (e) => {
             if (modal.style.display === "block" || currentIndex >= charsData.length) return; 
             if (e.key.length > 1) return; 
@@ -241,24 +293,20 @@
                 currentIndex++;
                 container.style.transform = `translateX(${-currentIndex * charWidth}px)`;
 
-                // 🐒 원숭이 타자 프레임 애니메이션 처리 (크기 고정 상태로 소스만 변경)
                 clearTimeout(monkeyTimer); 
                 
-                currentFrame = (currentFrame % 4) + 1; // 1 -> 2 -> 3 -> 4 -> 1
+                currentFrame = (currentFrame % 4) + 1; 
                 monkeyImg.src = `image/monkeytypo${currentFrame}.png`; 
 
-                // 타자를 멈추고 250ms가 지나면 대기 이미지로 복귀
                 monkeyTimer = setTimeout(() => {
                     monkeyImg.src = "image/monkeystop.png";
                     currentFrame = 0; 
                 }, 250);
 
-                // 무한 스트림 채우기
                 if (charsData.length - currentIndex < 40) {
                     appendStream(100);
                 }
                 
-                // 단어 매칭 체크
                 for (let word of dictionary) {
                     let len = word.length;
                     
@@ -280,6 +328,7 @@
                                 targetData.colorOverridden = true; 
                             }
                             
+                            launchBanana(len);
                             collectWord(word, chosenColor);
                             break; 
                         }
@@ -288,7 +337,7 @@
             }
         });
 
-        /* 팝업 모달 이벤트 */
+        /* 팝업 모달 이벤트 (수정 완료) */
         popupBtnContainer.addEventListener("click", () => {
             modal.style.display = "block";
             overlay.style.display = "block";
