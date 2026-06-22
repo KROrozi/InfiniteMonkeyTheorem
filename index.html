@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinite Stream Typing Game - Gravity Banana Edition</title>
+    <title>Infinite Stream Typing Game - Solid Banana Drop Edition</title>
     <style>
         /* 기본 UI 설정 */
         body {
@@ -94,13 +94,14 @@
             user-select: none;
         }
 
-        /* 4. 중력 낙하 바나나 오브젝트 CSS */
+        /* 4. 중력 낙하 바나나 오브젝트 CSS (페이드아웃 제거 버전) */
         .flying-banana {
             position: fixed;
             z-index: 100;
             pointer-events: none;
             image-rendering: pixelated;
-            animation: tossAndFall 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            /* opacity 관련 타임라인을 지우고 깔끔하게 포물선 운동만 적용 */
+            animation: tossAndFall 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
         @keyframes tossAndFall {
@@ -108,19 +109,16 @@
                 left: 50%;
                 top: 60vh; 
                 transform: translate(-50%, -50%) rotate(0deg);
-                opacity: 0;
             }
-            15% {
-                opacity: 1;
-            }
-            35% {
+            30% {
+                /* 최대로 튕겨 올라가는 정점 지점 */
                 top: var(--peak-y); 
             }
             100% {
-                top: 110vh; 
+                /* 투명도 변화(opacity) 없이 원래 모습 그대로 화면 맨 밑바닥(120vh) 너머로 추락 */
+                top: 120vh; 
                 left: var(--target-x);
                 transform: translate(-50%, -50%) rotate(var(--target-rot));
-                opacity: 0;
             }
         }
 
@@ -195,8 +193,6 @@
         const flatNeonColors = ['#FF3366', '#33FFCC', '#33CCFF', '#CCFF33', '#FF9933', '#FF33FF'];
 
         const container = document.getElementById("game-container");
-        
-        // ⚠️ 이 부분이 낙타 표기법(popupBtnContainer)으로 안전하게 수정되었습니다.
         const popupBtnContainer = document.getElementById("popup-btn-container");
         const wordBadge = document.getElementById("word-badge");
         const modal = document.getElementById("word-modal");
@@ -253,8 +249,8 @@
             flyingBanana.style.height = "auto";
             
             const targetX = 15 + Math.random() * 70; 
-            const peakY = 30 + Math.random() * 15;
-            const targetRot = (Math.random() - 0.5) * 1080; 
+            const peakY = 25 + Math.random() * 15; // 정점을 조금 더 위로 세팅해서 시원하게 튀도록 조정
+            const targetRot = (Math.random() - 0.5) * 1440; // 회전수 증가
 
             flyingBanana.style.setProperty('--target-x', `${targetX}vw`);
             flyingBanana.style.setProperty('--peak-y', `${peakY}vh`);
@@ -262,9 +258,10 @@
 
             document.body.appendChild(flyingBanana);
 
+            // 화면을 완벽히 벗어날 때까지 대기했다가 제거 (1.2초)
             setTimeout(() => {
                 flyingBanana.remove();
-            }, 1000);
+            }, 1200);
         }
 
         function collectWord(word, color) {
@@ -337,7 +334,6 @@
             }
         });
 
-        /* 팝업 모달 이벤트 (수정 완료) */
         popupBtnContainer.addEventListener("click", () => {
             modal.style.display = "block";
             overlay.style.display = "block";
