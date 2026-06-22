@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinite Stream Typing Game - Monkey Edition</title>
+    <title>Infinite Stream Typing Game - Big Monkey Edition</title>
     <style>
         /* 기본 UI 설정 */
         body {
@@ -79,16 +79,17 @@
             transition: color 0.08s ease-in-out;
         }
 
-        /* 3. 하단 원숭이 이미지 영역 */
+        /* 3. 하단 원숭이 이미지 영역 (크기 2배 확대 및 고정) */
         #monkey-container {
-            margin-top: 40px;
+            margin-top: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
         #monkey-img {
-            width: 180px; 
-            height: auto;
+            width: 360px;         /* 기존 180px에서 2배인 360px로 확대 */
+            height: 360px;        /* 세로 크기도 고정하여 프레임 전환 시 들썩임 방지 */
+            object-fit: contain;  /* 이미지 비율을 유지하면서 고정된 상자 안에 깔끔하게 맞춤 */
             image-rendering: pixelated; 
             user-select: none;
         }
@@ -240,7 +241,7 @@
                 currentIndex++;
                 container.style.transform = `translateX(${-currentIndex * charWidth}px)`;
 
-                // 🐒 폴더 경로가 포함된 원숭이 타자 프레임 애니메이션 처리
+                // 🐒 원숭이 타자 프레임 애니메이션 처리 (크기 고정 상태로 소스만 변경)
                 clearTimeout(monkeyTimer); 
                 
                 currentFrame = (currentFrame % 4) + 1; // 1 -> 2 -> 3 -> 4 -> 1
