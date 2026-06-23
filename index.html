@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinite Stream Typing Game - Easter Egg Archive Edition</title>
+    <title>Infinite Stream Typing Game - Dokkae Easter Egg Edition</title>
     <style>
         /* 기본 UI 설정 */
         body {
@@ -19,7 +19,7 @@
             color: #ffffff;
         }
 
-        /* 1. 우측 상단 버튼 레이아웃 */
+        /* 1. 우측 상단 UI 버튼 그룹 */
         #ui-top-container {
             position: fixed;
             top: 20px;
@@ -55,7 +55,7 @@
             font-family: sans-serif;
         }
         #word-badge { background-color: #ff3366; }
-        #ee-badge { background-color: #ffd700; color: #000; } /* 이스터에그 배지는 황금색 */
+        #ee-badge { background-color: #ffd700; color: #000; } 
 
         /* 2. 게임 텍스트 창 (한 줄 스트림) */
         #game-window {
@@ -116,6 +116,8 @@
         /* ========================================================
            ✨ 이스터에그 연출용 CSS 애니메이션 영역
         ======================================================== */
+        
+        /* [bppc 연출] 직선 돌격 */
         .ee-bppc-flying {
             position: fixed;
             width: 550px; height: 550px;
@@ -129,6 +131,7 @@
             100% { left: -600px; transform: translateY(-50%); }
         }
 
+        /* [spoon 연출] 양방향 수평 교차 트위스트 */
         .ee-spoon-asset {
             position: fixed;
             width: 520px; height: 520px;
@@ -137,9 +140,7 @@
             pointer-events: none;
             top: 50vh;
         }
-        .ee-spoon-left {
-            animation: spoonCrossLeft 3.5s ease-in-out forwards;
-        }
+        .ee-spoon-left { animation: spoonCrossLeft 3.5s ease-in-out forwards; }
         @keyframes spoonCrossLeft {
             0%   { left: -600px; transform: translateY(-50%); }
             25%  { left: 35vw;   transform: translateY(-50%); }
@@ -147,9 +148,7 @@
             65%  { left: 40vw;   transform: translateY(-50%); }
             100% { left: 105vw;  transform: translateY(-50%); }
         }
-        .ee-spoon-right {
-            animation: spoonCrossRight 3.5s ease-in-out forwards;
-        }
+        .ee-spoon-right { animation: spoonCrossRight 3.5s ease-in-out forwards; }
         @keyframes spoonCrossRight {
             0%   { left: 105vw;  transform: translateY(-50%) scaleX(-1); }
             25%  { left: 50vw;   transform: translateY(-50%) scaleX(-1); }
@@ -158,7 +157,65 @@
             100% { left: -600px; transform: translateY(-50%) scaleX(-1); }
         }
 
-        /* 5. 팝업창(모달) 및 리스트 내부 아이콘 스타일 */
+        /* 👹 [dokkae 연출] 사방 모서리 습격 후 중간 지점 흔들기 모션 */
+        .ee-dokkae-asset {
+            position: fixed;
+            width: 500px; height: 500px; /* 가로세로 500px 확보 */
+            object-fit: contain;
+            z-index: 99;
+            pointer-events: none;
+        }
+        .ee-dokkae-tl { animation: dokkaeTL 4.0s ease-in-out forwards; }
+        .ee-dokkae-tr { animation: dokkaeTR 4.0s ease-in-out forwards; }
+        .ee-dokkae-bl { animation: dokkaeBL 4.0s ease-in-out forwards; }
+        .ee-dokkae-br { animation: dokkaeBR 4.0s ease-in-out forwards; }
+
+        /* 좌측 상단 도깨비 */
+        @keyframes dokkaeTL {
+            0%   { top: -600px; left: -600px; }
+            20%  { top: 10vh; left: 10vw; transform: translateX(0); }
+            30%  { top: 10vh; left: 10vw; transform: translateX(-25px); }
+            40%  { top: 10vh; left: 10vw; transform: translateX(25px); }
+            50%  { top: 10vh; left: 10vw; transform: translateX(-25px); }
+            60%  { top: 10vh; left: 10vw; transform: translateX(25px); }
+            75%  { top: 10vh; left: 10vw; transform: translateX(0); }
+            100% { top: -600px; left: -600px; }
+        }
+        /* 우측 상단 도깨비 */
+        @keyframes dokkaeTR {
+            0%   { top: -600px; right: -600px; }
+            20%  { top: 10vh; right: 10vw; transform: translateX(0); }
+            30%  { top: 10vh; right: 10vw; transform: translateX(-25px); }
+            40%  { top: 10vh; right: 10vw; transform: translateX(25px); }
+            50%  { top: 10vh; right: 10vw; transform: translateX(-25px); }
+            60%  { top: 10vh; right: 10vw; transform: translateX(25px); }
+            75%  { top: 10vh; right: 10vw; transform: translateX(0); }
+            100% { top: -600px; right: -600px; }
+        }
+        /* 좌측 하단 도깨비 */
+        @keyframes dokkaeBL {
+            0%   { bottom: -600px; left: -600px; }
+            20%  { bottom: 10vh; left: 10vw; transform: translateX(0); }
+            30%  { bottom: 10vh; left: 10vw; transform: translateX(-25px); }
+            40%  { bottom: 10vh; left: 10vw; transform: translateX(25px); }
+            50%  { bottom: 10vh; left: 10vw; transform: translateX(-25px); }
+            60%  { bottom: 10vh; left: 10vw; transform: translateX(25px); }
+            75%  { bottom: 10vh; left: 10vw; transform: translateX(0); }
+            100% { bottom: -600px; left: -600px; }
+        }
+        /* 우측 하단 도깨비 */
+        @keyframes dokkaeBR {
+            0%   { bottom: -600px; right: -600px; }
+            20%  { bottom: 10vh; right: 10vw; transform: translateX(0); }
+            30%  { bottom: 10vh; right: 10vw; transform: translateX(-25px); }
+            40%  { bottom: 10vh; right: 10vw; transform: translateX(25px); }
+            50%  { bottom: 10vh; right: 10vw; transform: translateX(-25px); }
+            60%  { bottom: 10vh; right: 10vw; transform: translateX(25px); }
+            75%  { bottom: 10vh; right: 10vw; transform: translateX(0); }
+            100% { bottom: -600px; right: -600px; }
+        }
+
+        /* 5. 팝업창(모달) 스타일 */
         .modal-window {
             display: none; 
             position: fixed;
@@ -194,16 +251,16 @@
             font-size: 1.2rem; font-weight: bold;
         }
         
-        /* 이스터에그 도감 내 재플레이 이미지 버튼 */
+        /* 도감창 애니메이션 재호출 아이콘 버튼 */
         .list-ee-click-icon {
-            width: 36px; height: auto;
+            width: 36px; height: 36px;
             object-fit: contain;
             margin-left: 10px;
             cursor: pointer;
             transition: transform 0.1s ease;
         }
         .list-ee-click-icon:hover {
-            transform: scale(1.2); /* 마우스 올리면 커짐 (클릭 유도) */
+            transform: scale(1.2);
         }
 
         #modal-overlay {
@@ -215,27 +272,34 @@
 </head>
 <body>
 
+    <!-- 우측 상단 UI 버튼 그룹 -->
     <div id="ui-top-container">
+        <!-- 1. 일반 단어 바구니 (바나나) -->
         <div id="banana-btn-wrapper" class="bucket-btn-wrapper">
             <img src="image/banana.png" alt="Normal Words Bucket">
             <div id="word-badge" class="badge">0</div>
         </div>
+        <!-- 2. 이스터에그 보관함 (황금알) -->
         <div id="egg-btn-wrapper" class="bucket-btn-wrapper">
             <img src="image/egg.png" alt="Easter Egg Archive">
             <div id="ee-badge" class="badge">0</div>
         </div>
     </div>
 
+    <!-- 게임 화면 (텍스트 스트림) -->
     <div id="game-window">
         <div id="game-container"></div>
     </div>
 
+    <!-- 하단 원숭이 애니메이션 영역 -->
     <div id="monkey-container">
         <img id="monkey-img" src="image/monkeystop.png" alt="Typing Monkey">
     </div>
 
+    <!-- 배경 오버레이 (공용) -->
     <div id="modal-overlay"></div>
 
+    <!-- [팝업 1] 일반 단어 보관함 모달 -->
     <div id="banana-modal" class="modal-window">
         <div class="modal-header">
             <h3>Collected Words</h3>
@@ -244,6 +308,7 @@
         <ul id="banana-word-list" class="word-list-ul"></ul>
     </div>
 
+    <!-- [팝업 2] 이스터에그 도감 모달 -->
     <div id="egg-modal" class="modal-window">
         <div class="modal-header">
             <h3 style="color: #ffd700;">🥚 Easter Eggs</h3>
@@ -257,9 +322,11 @@
         const wordsString = "ability,able,about,above,accept,according,account,across,action,activity,actually,address,administration,admit,adult,affect,after,again,against,agency,agent,agree,agreement,ahead,allow,almost,alone,along,already,also,although,always,american,among,amount,analysis,animal,another,answer,anyone,anything,appear,apply,approach,area,argue,around,arrive,article,artist,assume,attack,attention,attorney,audience,author,authority,available,avoid,away,baby,back,blood,board,body,book,born,both,break,bring,brother,budget,build,building,business,call,camera,campaign,cancer,candidate,capital,care,career,carry,case,catch,cause,cell,center,central,century,certain,certainly,chair,challenge,chance,change,character,charge,check,child,choice,choose,church,citizen,city,civil,claim,class,clear,clearly,close,coach,cold,collection,college,color,come,commercial,common,community,company,compare,computer,concern,condition,conference,congress,consider,consumer,contain,continue,control,cost,could,country,couple,course,court,cover,create,crime,cultural,culture,current,customer,dark,data,daughter,dead,deal,death,debate,decade,decide,decision,deep,defense,degree,democrat,democratic,describe,design,despite,detail,determine,develop,development,die,difference,different,difficult,dinner,direction,director,discover,discuss,discussion,disease,doctor,door,down,draw,dream,drive,drop,drug,during,each,early,east,easy,edge,education,effect,effort,eight,either,election,else,employee,energy,enjoy,enough,enter,entire,environment,especially,establish,even,evening,event,ever,every,everybody,everyone,everything,evidence,exactly,example,executive,exist,expect,experience,expert,explain,factor,fail,fall,family,fast,father,fear,federal,feel,feeling,field,fight,figure,fill,film,final,finally,financial,find,fine,finger,finish,fire,firm,first,fish,five,floor,focus,follow,food,foot,force,foreign,forget,form,former,forward,four,free,friend,from,front,full,fund,future,game,garden,gas,general,generation,girl,give,glass,goal,good,government,great,green,ground,group,grow,growth,guess,hair,half,hand,hang,happen,happy,hard,have,head,health,hear,heart,heat,heavy,help,here,herself,high,himself,history,hold,hole,home,hope,hospital,hotel,hour,house,huge,human,hundred,husband,idea,identify,image,imagine,impact,important,improve,include,including,increase,indeed,indicate,individual,industry,information,inside,instead,institution,interest,interesting,international,interview,into,investment,involve,issue,item,join,just,keep,kill,kind,know,knowledge,land,language,large,last,late,later,laugh,lawyer,lead,leader,learning,least,leave,left,legal,less,letter,level,life,light,like,likely,line,list,listen,little,live,local,long,look,lose,loss,love,machine,magazine,main,maintain,major,majority,make,manage,management,manager,many,market,marriage,material,matter,maybe,mean,measure,media,medical,meet,meeting,member,memory,mention,message,method,middle,might,military,million,mind,minute,miss,mission,model,modern,moment,money,month,more,morning,most,mother,mouth,move,movement,movie,much,music,must,myself,name,nation,national,natural,nature,near,nearly,necessary,need,network,never,news,newspaper,next,nice,night,none,north,note,nothing,notice,number,occur,ocean,offer,office,officer,official,often,once,only,onto,open,operation,opportunity,option,order,organization,other,others,outside,over,owner,page,pain,painting,paper,parent,part,participant,particular,particularly,partner,party,pass,past,patient,pattern,peace,people,perform,performance,perhaps,period,person,personal,phone,physical,pick,picture,piece,place,plan,plant,play,player,point,police,policy,political,politics,poor,popular,population,position,positive,possible,power,practice,prepare,present,president,pressure,price,private,probably,problem,process,produce,product,production,professional,professor,program,project,property,protect,prove,provide,public,pull,purpose,push,quality,question,quickly,quite,race,radio,raise,range,rate,rather,reach,read,ready,real,reality,realize,really,reason,receive,recent,recently,recognize,record,reduce,reflect,region,relate,relationship,religious,remain,remember,remove,report,represent,republican,require,research,resource,respond,response,responsibility,rest,result,return,reveal,rich,right,rise,risk,road,rock,role,room,rule,safe,same,save,scene,school,science,scientist,score,season,seat,second,section,security,seek,seem,sell,send,senior,sense,series,serious,serve,service,set,seven,several,sexual,shake,share,shoot,short,shot,should,shoulder,show,side,sign,significant,similar,simple,simply,since,sing,single,sister,site,situation,size,skill,skin,small,smile,social,society,soldier,some,somebody,someone,something,sometimes,song,soon,sort,sound,source,south,southern,space,speak,special,specific,speech,spend,sport,spring,staff,stage,stand,standard,star,start,state,statement,station,stay,step,still,stock,stop,store,story,strategy,street,strong,structure,student,study,stuff,style,subject,success,successful,such,suddenly,suffer,suggest,summer,support,sure,surface,system,table,take,talk,task,team,technology,television,tell,term,test,than,that,their,them,themselves,then,theory,there,these,they,thing,think,third,this,those,though,thought,thousand,threat,three,through,throughout,throw,thus,time,today,together,tonight,total,tough,toward,town,trade,traditional,training,travel,treat,treatment,tree,trial,trip,trouble,true,truth,turn,type,under,understand,unit,until,upon,usually,value,various,very,victim,view,violence,visit,voice,vote,wait,walk,wall,want,warm,warn,wash,watch,water,wave,weapon,wear,week,weight,well,west,western,whatever,when,where,whether,which,while,white,whole,whom,whose,wide,wife,will,wind,window,wish,with,within,without,woman,wonder,word,work,worker,world,worry,would,write,writer,wrong,yard,yeah,year,young,your,yourself,apple,banana,orange,grape,strawberry,keyboard,mouse,monitor,laptop,screen,software,hardware,internet,website,browser,server,database,network,pixel,coding,logic,function,variable,string,array,object,class,method,error,debug,release,version,update,patch,click,scroll,touch,swipe,zoom,upload,download,search,engine,link,domain,cloud,mobile,battery,photo,video,audio,rhythm,beat,tempo,melody,harmony,chord,vocal,guitar,piano,drum,bass,synth,concert,ticket,crowd,album,track,record,vinyl,studio,microphone,speaker,headphone,broadcast,podcast,stream,live,channel,episode,season,series,actor,actress,director,script,plot,scene,drama,comedy,action,horror,thriller,romance,fantasy,scifi,animation,cartoon,comic,novel,poem,poet,chapter,character,hero,villain,magic,sword,shield,dragon,knight,castle,king,queen,prince,princess,royal,crown,throne,gold,silver,bronze,iron,steel,wood,stone,dirt,sand,plastic,cloth,fabric,cotton,silk,wool,leather,shoe,boot,sock,shirt,pant,dress,skirt,coat,jacket,glove,ring,clock,decade,past,present,future,tomorrow,yesterday,noon,afternoon,midnight,dawn,dusk,moon,planet,earth,mars,jupiter,saturn,galaxy,universe,astronaut,rocket,ship,alien,orbit,gravity,speed,light,color,yellow,purple,pink,brown,black,gray,shape,circle,square,triangle,line,point,volume,mass,tall,short,narrow,deep,shallow,high,cold,warm,cool,hard,soft,rough,smooth,heavy,fast,slow,quick,steady,weak,brave,scared,angry,calm,loud,quiet,deaf,blind,mute,dumb,smart,clever,wise,fool,crazy,sane,sick,awake,sleep,dream,nightmare,pillow,blanket,roof,floor,kitchen,bath,living,dining,yard,grass,leaf,branch,root,flower,seed,fruit,vegetable,meat,beef,pork,bread,cheese,milk,butter,salt,pepper,sugar,spice,sweet,sour,bitter,spicy,taste,smell,sight,sense,brain,lung,stomach,liver,kidney,bone,muscle,nail,face,nose,lip,tooth,tongue,neck,arm,thumb,chest,waist,knee,foot";
         const dictionary = wordsString.split(",").filter(word => word.length >= 3);
 
+        // 📌 이스터에그 데이터베이스 (dokkae 추가)
         const easterEggs = {
             "bppc": { img: "image/bppcimg.png", color: "#00FF66" },
-            "spoon": { img: "image/spoonimg.png", color: "#FF00FF" }
+            "spoon": { img: "image/spoonimg.png", color: "#FF00FF" },
+            "dokkae": { img: "image/dokkaeimg.png", color: "#FF3333" } // 도깨비는 강렬한 네온 레드
         };
 
         const flatNeonColors = ['#FF3366', '#33FFCC', '#33CCFF', '#CCFF33', '#FF9933', '#FF33FF'];
@@ -285,8 +352,8 @@
         let charsData = []; 
         let currentIndex = 0; 
         
-        let collectedWords = []; // 일반 단어 리스트
-        let collectedEE = [];    // 수집된 이스터에그 리스트 (중복체크용)
+        let collectedWords = []; 
+        let collectedEE = [];    
 
         const charWidth = 45;    
         let currentFrame = 0;
@@ -350,7 +417,7 @@
         }
 
         // ========================================================
-        // 🎬 이스터에그 실시간 및 리플레이 공용 구동 엔진
+        // 🎬 이스터에그 애니메이션 구동 장치 (dokkae 추가완료)
         // ========================================================
         function triggerEasterEggInteraction(word) {
             if (word === "bppc") {
@@ -382,9 +449,26 @@
                     spoonR.remove();
                 }, 3500);
             }
+            else if (word === "dokkae") {
+                // 👹 4개 모서리 방향 배열 정의
+                const corners = ['tl', 'tr', 'bl', 'br'];
+                const spawnedElements = [];
+
+                corners.forEach(corner => {
+                    const img = document.createElement("img");
+                    img.src = easterEggs["dokkae"].img;
+                    img.className = `ee-dokkae-asset ee-dokkae-${corner}`;
+                    document.body.appendChild(img);
+                    spawnedElements.push(img);
+                });
+
+                // 애니메이션 완료(4.0초) 후 화면 밖으로 나가면 브라우저 엘리먼트 자동 클린업
+                setTimeout(() => {
+                    spawnedElements.forEach(el => el.remove());
+                }, 4000);
+            }
         }
 
-        // 📝 일반 단어 수집 처리
         function collectNormalWord(word, color) {
             collectedWords.push({ name: word, color: color });
             wordBadge.innerText = collectedWords.length; 
@@ -395,9 +479,7 @@
             bananaWordList.appendChild(li);
         }
 
-        // 🥚 이스터에그 수집 처리 (중복 없이 한 개만 노출 및 클릭 리플레이 바인딩)
         function collectEasterEgg(word, color) {
-            // 중복 리스트에 없을 때만 도감(Ul)에 엘리먼트 추가
             if (!collectedEE.includes(word)) {
                 collectedEE.push(word);
                 eeBadge.innerText = collectedEE.length;
@@ -409,13 +491,11 @@
                 textSpan.innerText = word;
                 li.appendChild(textSpan);
 
-                // 클릭하면 연출이 재호출되는 이미지 버튼 추가
                 const replayImg = document.createElement("img");
                 replayImg.src = easterEggs[word].img;
                 replayImg.className = "list-ee-click-icon";
                 replayImg.title = "Click to replay animation!";
                 
-                // 클릭 이벤트 바인딩: 리스트 내 아이콘을 누르면 연출 재가동!
                 replayImg.addEventListener("click", () => {
                     triggerEasterEggInteraction(word);
                 });
@@ -425,7 +505,6 @@
             }
         }
 
-        // 키다운 이벤트 리스너
         window.addEventListener("keydown", (e) => {
             if (bananaModal.style.display === "block" || eggModal.style.display === "block" || currentIndex >= charsData.length) return; 
             if (e.key.length > 1) return; 
@@ -454,7 +533,6 @@
                     appendStream(100);
                 }
                 
-                // 1. 이스터에그 우선 체크
                 let eeFound = false;
                 for (let eeWord in easterEggs) {
                     let len = eeWord.length;
@@ -476,14 +554,13 @@
                             
                             triggerEasterEggInteraction(eeWord);
                             launchBanana(len); 
-                            collectEasterEgg(eeWord, chosenColor); // 알 전용 보관함으로 전송
+                            collectEasterEgg(eeWord, chosenColor); 
                             eeFound = true;
                             break;
                         }
                     }
                 }
 
-                // 2. 일반 단어 체크
                 if (!eeFound) {
                     for (let word of dictionary) {
                         let len = word.length;
@@ -512,7 +589,6 @@
             }
         });
 
-        // 모달 제어 이벤트 바인딩
         bananaBtn.addEventListener("click", () => {
             bananaModal.style.display = "block";
             overlay.style.display = "block";
