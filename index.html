@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinite Stream Typing Game - Dokkae Easter Egg Edition</title>
+    <title>Infinite Stream Typing Game - SeaMonkeys Expansion</title>
     <style>
         /* 기본 UI 설정 */
         body {
@@ -131,7 +131,7 @@
             100% { left: -600px; transform: translateY(-50%); }
         }
 
-        /* [spoon 연출] 양방향 수평 교차 트위스트 */
+        /* [spoon 연출] 양방향 수평 교차 */
         .ee-spoon-asset {
             position: fixed;
             width: 520px; height: 520px;
@@ -157,10 +157,10 @@
             100% { left: -600px; transform: translateY(-50%) scaleX(-1); }
         }
 
-        /* 👹 [dokkae 연출] 사방 모서리 습격 후 중간 지점 흔들기 모션 */
+        /* [dokkae 연출] 사방 모서리 습격 후 중간 지점 흔들기 */
         .ee-dokkae-asset {
             position: fixed;
-            width: 500px; height: 500px; /* 가로세로 500px 확보 */
+            width: 500px; height: 500px;
             object-fit: contain;
             z-index: 99;
             pointer-events: none;
@@ -170,7 +170,6 @@
         .ee-dokkae-bl { animation: dokkaeBL 4.0s ease-in-out forwards; }
         .ee-dokkae-br { animation: dokkaeBR 4.0s ease-in-out forwards; }
 
-        /* 좌측 상단 도깨비 */
         @keyframes dokkaeTL {
             0%   { top: -600px; left: -600px; }
             20%  { top: 10vh; left: 10vw; transform: translateX(0); }
@@ -181,7 +180,6 @@
             75%  { top: 10vh; left: 10vw; transform: translateX(0); }
             100% { top: -600px; left: -600px; }
         }
-        /* 우측 상단 도깨비 */
         @keyframes dokkaeTR {
             0%   { top: -600px; right: -600px; }
             20%  { top: 10vh; right: 10vw; transform: translateX(0); }
@@ -192,7 +190,6 @@
             75%  { top: 10vh; right: 10vw; transform: translateX(0); }
             100% { top: -600px; right: -600px; }
         }
-        /* 좌측 하단 도깨비 */
         @keyframes dokkaeBL {
             0%   { bottom: -600px; left: -600px; }
             20%  { bottom: 10vh; left: 10vw; transform: translateX(0); }
@@ -203,7 +200,6 @@
             75%  { bottom: 10vh; left: 10vw; transform: translateX(0); }
             100% { bottom: -600px; left: -600px; }
         }
-        /* 우측 하단 도깨비 */
         @keyframes dokkaeBR {
             0%   { bottom: -600px; right: -600px; }
             20%  { bottom: 10vh; right: 10vw; transform: translateX(0); }
@@ -213,6 +209,25 @@
             60%  { bottom: 10vh; right: 10vw; transform: translateX(25px); }
             75%  { bottom: 10vh; right: 10vw; transform: translateX(0); }
             100% { bottom: -600px; right: -600px; }
+        }
+
+        /* 🌊 [seamonkeys 연출] 1920px 해상도 전체 커버 바운스 댄스 모션 */
+        .ee-seamonkeys-asset {
+            position: fixed;
+            width: 1920px; 
+            height: auto;
+            left: 50%;
+            z-index: 99;
+            pointer-events: none;
+            animation: seamonkeysMotion 4.8s ease-in-out forwards;
+        }
+        @keyframes seamonkeysMotion {
+            0%   { top: 150vh; transform: translate(-50%, -50%); }
+            25%  { top: 50vh;  transform: translate(-50%, -50%); } /* 화면 정중앙 솟구치기 */
+            42%  { top: 38vh;  transform: translate(-50%, -50%); } /* 위로 무빙 */
+            58%  { top: 62vh;  transform: translate(-50%, -50%); } /* 아래로 무빙 */
+            75%  { top: 50vh;  transform: translate(-50%, -50%); } /* 다시 중앙 정렬 */
+            100% { top: 150vh; transform: translate(-50%, -50%); } /* 바닥 아래로 완전 퇴장 */
         }
 
         /* 5. 팝업창(모달) 스타일 */
@@ -251,7 +266,6 @@
             font-size: 1.2rem; font-weight: bold;
         }
         
-        /* 도감창 애니메이션 재호출 아이콘 버튼 */
         .list-ee-click-icon {
             width: 36px; height: 36px;
             object-fit: contain;
@@ -272,34 +286,27 @@
 </head>
 <body>
 
-    <!-- 우측 상단 UI 버튼 그룹 -->
     <div id="ui-top-container">
-        <!-- 1. 일반 단어 바구니 (바나나) -->
         <div id="banana-btn-wrapper" class="bucket-btn-wrapper">
             <img src="image/banana.png" alt="Normal Words Bucket">
             <div id="word-badge" class="badge">0</div>
         </div>
-        <!-- 2. 이스터에그 보관함 (황금알) -->
         <div id="egg-btn-wrapper" class="bucket-btn-wrapper">
             <img src="image/egg.png" alt="Easter Egg Archive">
             <div id="ee-badge" class="badge">0</div>
         </div>
     </div>
 
-    <!-- 게임 화면 (텍스트 스트림) -->
     <div id="game-window">
         <div id="game-container"></div>
     </div>
 
-    <!-- 하단 원숭이 애니메이션 영역 -->
     <div id="monkey-container">
         <img id="monkey-img" src="image/monkeystop.png" alt="Typing Monkey">
     </div>
 
-    <!-- 배경 오버레이 (공용) -->
     <div id="modal-overlay"></div>
 
-    <!-- [팝업 1] 일반 단어 보관함 모달 -->
     <div id="banana-modal" class="modal-window">
         <div class="modal-header">
             <h3>Collected Words</h3>
@@ -308,7 +315,6 @@
         <ul id="banana-word-list" class="word-list-ul"></ul>
     </div>
 
-    <!-- [팝업 2] 이스터에그 도감 모달 -->
     <div id="egg-modal" class="modal-window">
         <div class="modal-header">
             <h3 style="color: #ffd700;">🥚 Easter Eggs</h3>
@@ -318,15 +324,15 @@
     </div>
 
     <script>
-        // 사전 데이터베이스
         const wordsString = "ability,able,about,above,accept,according,account,across,action,activity,actually,address,administration,admit,adult,affect,after,again,against,agency,agent,agree,agreement,ahead,allow,almost,alone,along,already,also,although,always,american,among,amount,analysis,animal,another,answer,anyone,anything,appear,apply,approach,area,argue,around,arrive,article,artist,assume,attack,attention,attorney,audience,author,authority,available,avoid,away,baby,back,blood,board,body,book,born,both,break,bring,brother,budget,build,building,business,call,camera,campaign,cancer,candidate,capital,care,career,carry,case,catch,cause,cell,center,central,century,certain,certainly,chair,challenge,chance,change,character,charge,check,child,choice,choose,church,citizen,city,civil,claim,class,clear,clearly,close,coach,cold,collection,college,color,come,commercial,common,community,company,compare,computer,concern,condition,conference,congress,consider,consumer,contain,continue,control,cost,could,country,couple,course,court,cover,create,crime,cultural,culture,current,customer,dark,data,daughter,dead,deal,death,debate,decade,decide,decision,deep,defense,degree,democrat,democratic,describe,design,despite,detail,determine,develop,development,die,difference,different,difficult,dinner,direction,director,discover,discuss,discussion,disease,doctor,door,down,draw,dream,drive,drop,drug,during,each,early,east,easy,edge,education,effect,effort,eight,either,election,else,employee,energy,enjoy,enough,enter,entire,environment,especially,establish,even,evening,event,ever,every,everybody,everyone,everything,evidence,exactly,example,executive,exist,expect,experience,expert,explain,factor,fail,fall,family,fast,father,fear,federal,feel,feeling,field,fight,figure,fill,film,final,finally,financial,find,fine,finger,finish,fire,firm,first,fish,five,floor,focus,follow,food,foot,force,foreign,forget,form,former,forward,four,free,friend,from,front,full,fund,future,game,garden,gas,general,generation,girl,give,glass,goal,good,government,great,green,ground,group,grow,growth,guess,hair,half,hand,hang,happen,happy,hard,have,head,health,hear,heart,heat,heavy,help,here,herself,high,himself,history,hold,hole,home,hope,hospital,hotel,hour,house,huge,human,hundred,husband,idea,identify,image,imagine,impact,important,improve,include,including,increase,indeed,indicate,individual,industry,information,inside,instead,institution,interest,interesting,international,interview,into,investment,involve,issue,item,join,just,keep,kill,kind,know,knowledge,land,language,large,last,late,later,laugh,lawyer,lead,leader,learning,least,leave,left,legal,less,letter,level,life,light,like,likely,line,list,listen,little,live,local,long,look,lose,loss,love,machine,magazine,main,maintain,major,majority,make,manage,management,manager,many,market,marriage,material,matter,maybe,mean,measure,media,medical,meet,meeting,member,memory,mention,message,method,middle,might,military,million,mind,minute,miss,mission,model,modern,moment,money,month,more,morning,most,mother,mouth,move,movement,movie,much,music,must,myself,name,nation,national,natural,nature,near,nearly,necessary,need,network,never,news,newspaper,next,nice,night,none,north,note,nothing,notice,number,occur,ocean,offer,office,officer,official,often,once,only,onto,open,operation,opportunity,option,order,organization,other,others,outside,over,owner,page,pain,painting,paper,parent,part,participant,particular,particularly,partner,party,pass,past,patient,pattern,peace,people,perform,performance,perhaps,period,person,personal,phone,physical,pick,picture,piece,place,plan,plant,play,player,point,police,policy,political,politics,poor,popular,population,position,positive,possible,power,practice,prepare,present,president,pressure,price,private,probably,problem,process,produce,product,production,professional,professor,program,project,property,protect,prove,provide,public,pull,purpose,push,quality,question,quickly,quite,race,radio,raise,range,rate,rather,reach,read,ready,real,reality,realize,really,reason,receive,recent,recently,recognize,record,reduce,reflect,region,relate,relationship,religious,remain,remember,remove,report,represent,republican,require,research,resource,respond,response,responsibility,rest,result,return,reveal,rich,right,rise,risk,road,rock,role,room,rule,safe,same,save,scene,school,science,scientist,score,season,seat,second,section,security,seek,seem,sell,send,senior,sense,series,serious,serve,service,set,seven,several,sexual,shake,share,shoot,short,shot,should,shoulder,show,side,sign,significant,similar,simple,simply,since,sing,single,sister,site,situation,size,skill,skin,small,smile,social,society,soldier,some,somebody,someone,something,sometimes,song,soon,sort,sound,source,south,southern,space,speak,special,specific,speech,spend,sport,spring,staff,stage,stand,standard,star,start,state,statement,station,stay,step,still,stock,stop,store,story,strategy,street,strong,structure,student,study,stuff,style,subject,success,successful,such,suddenly,suffer,suggest,summer,support,sure,surface,system,table,take,talk,task,team,technology,television,tell,term,test,than,that,their,them,themselves,then,theory,there,these,they,thing,think,third,this,those,though,thought,thousand,threat,three,through,throughout,throw,thus,time,today,together,tonight,total,tough,toward,town,trade,traditional,training,travel,treat,treatment,tree,trial,trip,trouble,true,truth,turn,type,under,understand,unit,until,upon,usually,value,various,very,victim,view,violence,visit,voice,vote,wait,walk,wall,want,warm,warn,wash,watch,water,wave,weapon,wear,week,weight,well,west,western,whatever,when,where,whether,which,while,white,whole,whom,whose,wide,wife,will,wind,window,wish,with,within,without,woman,wonder,word,work,worker,world,worry,would,write,writer,wrong,yard,yeah,year,young,your,yourself,apple,banana,orange,grape,strawberry,keyboard,mouse,monitor,laptop,screen,software,hardware,internet,website,browser,server,database,network,pixel,coding,logic,function,variable,string,array,object,class,method,error,debug,release,version,update,patch,click,scroll,touch,swipe,zoom,upload,download,search,engine,link,domain,cloud,mobile,battery,photo,video,audio,rhythm,beat,tempo,melody,harmony,chord,vocal,guitar,piano,drum,bass,synth,concert,ticket,crowd,album,track,record,vinyl,studio,microphone,speaker,headphone,broadcast,podcast,stream,live,channel,episode,season,series,actor,actress,director,script,plot,scene,drama,comedy,action,horror,thriller,romance,fantasy,scifi,animation,cartoon,comic,novel,poem,poet,chapter,character,hero,villain,magic,sword,shield,dragon,knight,castle,king,queen,prince,princess,royal,crown,throne,gold,silver,bronze,iron,steel,wood,stone,dirt,sand,plastic,cloth,fabric,cotton,silk,wool,leather,shoe,boot,sock,shirt,pant,dress,skirt,coat,jacket,glove,ring,clock,decade,past,present,future,tomorrow,yesterday,noon,afternoon,midnight,dawn,dusk,moon,planet,earth,mars,jupiter,saturn,galaxy,universe,astronaut,rocket,ship,alien,orbit,gravity,speed,light,color,yellow,purple,pink,brown,black,gray,shape,circle,square,triangle,line,point,volume,mass,tall,short,narrow,deep,shallow,high,cold,warm,cool,hard,soft,rough,smooth,heavy,fast,slow,quick,steady,weak,brave,scared,angry,calm,loud,quiet,deaf,blind,mute,dumb,smart,clever,wise,fool,crazy,sane,sick,awake,sleep,dream,nightmare,pillow,blanket,roof,floor,kitchen,bath,living,dining,yard,grass,leaf,branch,root,flower,seed,fruit,vegetable,meat,beef,pork,bread,cheese,milk,butter,salt,pepper,sugar,spice,sweet,sour,bitter,spicy,taste,smell,sight,sense,brain,lung,stomach,liver,kidney,bone,muscle,nail,face,nose,lip,tooth,tongue,neck,arm,thumb,chest,waist,knee,foot";
         const dictionary = wordsString.split(",").filter(word => word.length >= 3);
 
-        // 📌 이스터에그 데이터베이스 (dokkae 추가)
+        // 📌 이스터에그 데이터베이스 (seamonkeys 최신 탑재)
         const easterEggs = {
             "bppc": { img: "image/bppcimg.png", color: "#00FF66" },
             "spoon": { img: "image/spoonimg.png", color: "#FF00FF" },
-            "dokkae": { img: "image/dokkaeimg.png", color: "#FF3333" } // 도깨비는 강렬한 네온 레드
+            "dokkae": { img: "image/dokkaeimg.png", color: "#FF3333" },
+            "seamonkeys": { img: "image/seamonkeysimg.png", color: "#33CCFF" } // 🌊 청량한 네온 아쿠아 블루 블루
         };
 
         const flatNeonColors = ['#FF3366', '#33FFCC', '#33CCFF', '#CCFF33', '#FF9933', '#FF33FF'];
@@ -417,7 +423,7 @@
         }
 
         // ========================================================
-        // 🎬 이스터에그 애니메이션 구동 장치 (dokkae 추가완료)
+        // 🎬 이스터에그 애니메이션 구동 엔진 (seamonkeys 수용 완료)
         // ========================================================
         function triggerEasterEggInteraction(word) {
             if (word === "bppc") {
@@ -450,7 +456,6 @@
                 }, 3500);
             }
             else if (word === "dokkae") {
-                // 👹 4개 모서리 방향 배열 정의
                 const corners = ['tl', 'tr', 'bl', 'br'];
                 const spawnedElements = [];
 
@@ -462,10 +467,21 @@
                     spawnedElements.push(img);
                 });
 
-                // 애니메이션 완료(4.0초) 후 화면 밖으로 나가면 브라우저 엘리먼트 자동 클린업
                 setTimeout(() => {
                     spawnedElements.forEach(el => el.remove());
                 }, 4000);
+            }
+            else if (word === "seamonkeys") {
+                // 🌊 1920px 초대형 바다원숭이 맵 스폰
+                const img = document.createElement("img");
+                img.src = easterEggs["seamonkeys"].img;
+                img.className = "ee-seamonkeys-asset";
+                document.body.appendChild(img);
+
+                // 애니메이션(4.8초) 동안 위아래 바운싱을 마친 후 화면 바닥으로 사라지면 제거
+                setTimeout(() => {
+                    img.remove();
+                }, 4800);
             }
         }
 
