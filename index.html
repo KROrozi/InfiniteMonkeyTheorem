@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinite Stream Typing Game - Fever & Acceleration Edition</title>
+    <title>Infinite Stream Typing Game - Deluxe Fever & Sequence Edition</title>
     <style>
         /* 기본 UI 설정 */
         body {
@@ -17,7 +17,7 @@
             overflow: hidden;
             font-family: 'Courier New', Courier, monospace;
             color: #ffffff;
-            transition: background-color 0.3s ease; /* 피버타임 배경 전환 효과 */
+            transition: background-color 0.3s ease;
         }
 
         /* 1. 우측 상단 UI 버튼 그룹 */
@@ -31,7 +31,7 @@
             z-index: 10;
         }
 
-        /* ⚡ 가속모드 네온 버튼 스타일 */
+        /* 가속모드 네온 버튼 */
         #accel-btn {
             background-color: #111;
             border: 2px solid #333;
@@ -43,7 +43,6 @@
             cursor: pointer;
             transition: all 0.2s ease;
             font-family: inherit;
-            box-shadow: none;
         }
         #accel-btn:hover {
             background-color: #222;
@@ -78,30 +77,22 @@
         #word-badge { background-color: #ff3366; }
         #ee-badge { background-color: #ffd700; color: #000; } 
 
-        /* 🔥 피버타임 대형 실시간 인디케이터 */
+        /* 🔥 피버타임 인디케이터 (숫자 제거 버전) */
         #fever-indicator {
             display: none;
             position: fixed;
             top: 130px;
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             font-weight: bold;
             color: #ffcc00;
-            text-shadow: 0 0 10px #ffcc00, 0 0 20px #ff6600;
-            animation: feverPulse 0.8s infinite alternate;
+            text-shadow: 0 0 10px #ffcc00, 0 0 25px #ff3366;
+            animation: feverPulse 0.6s infinite alternate;
             z-index: 5;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
         }
         @keyframes feverPulse {
             0% { transform: scale(1); opacity: 0.8; }
-            100% { transform: scale(1.04); opacity: 1; }
-        }
-
-        /* 피버 게이지 텍스트 가이드 */
-        #fever-status-text {
-            color: #888;
-            font-size: 0.95rem;
-            margin-bottom: -20px;
-            font-weight: bold;
+            100% { transform: scale(1.06); opacity: 1; }
         }
 
         /* 2. 게임 텍스트 창 (한 줄 스트림) */
@@ -129,6 +120,19 @@
             color: #444; 
             text-align: center;
             transition: color 0.08s ease-in-out;
+        }
+
+        /* 🌈 피버타임 전용 무지개 실시간 그라데이션 애니메이션 */
+        .fever-rainbow {
+            animation: feverRainbowAnim 1.2s linear infinite !important;
+        }
+        @keyframes feverRainbowAnim {
+            0%   { color: #ff3366; text-shadow: 0 0 8px #ff3366; }
+            20%  { color: #ff9933; text-shadow: 0 0 8px #ff9933; }
+            40%  { color: #ffff33; text-shadow: 0 0 8px #ffff33; }
+            60%  { color: #33ffcc; text-shadow: 0 0 8px #33ffcc; }
+            80%  { color: #33ccff; text-shadow: 0 0 8px #33ccff; }
+            100% { color: #ff33ff; text-shadow: 0 0 8px #ff33ff; }
         }
 
         /* 3. 하단 원숭이 이미지 영역 */
@@ -341,8 +345,7 @@
         </div>
     </div>
 
-    <div id="fever-status-text">🔥 FEVER STACK: 0 / 50</div>
-    <div id="fever-indicator">🔥 FEVER TIME ACTIVE (100) 🔥</div>
+    <div id="fever-indicator">🔥 FEVER TIME ACTIVE 🔥</div>
 
     <div id="game-window">
         <div id="game-container"></div>
@@ -381,6 +384,10 @@
             "seamonkeys": { img: "image/seamonkeysimg.png", color: "#33CCFF" }
         };
 
+        // 🔄 가속 모드 전용 순서 제어용 시퀀스 배열
+        const eeSequence = ["bppc", "spoon", "dokkae", "seamonkeys"];
+        let eeSequenceIndex = 0; 
+
         const flatNeonColors = ['#FF3366', '#33FFCC', '#33CCFF', '#CCFF33', '#FF9933', '#FF33FF'];
 
         const container = document.getElementById("game-container");
@@ -402,7 +409,6 @@
         const eggWordList = document.getElementById("egg-word-list");
         const monkeyImg = document.getElementById("monkey-img");
         
-        const feverStatusText = document.getElementById("fever-status-text");
         const feverIndicator = document.getElementById("fever-indicator");
 
         let charsData = []; 
@@ -415,52 +421,65 @@
         let currentFrame = 0;
         let monkeyTimer = null;
 
-        // ⚙️ 상태 제어용 추가 변수들
-        let isAccelerationMode = false;  // 가속모드 여부
-        let isFeverTime = false;         // 피버타임 여부
-        let feverRemainingChars = 0;     // 남은 피버 글자 수
-        let feverStackCount = 0;         // 모은 단어 스택 개수
+        let isAccelerationMode = false;  
+        let isFeverTime = false;         
+        let feverRemainingChars = 0;     
+        let feverStackCount = 0;         
 
         let nextEeTriggerCount = Math.floor(Math.random() * 51) + 100; 
         let charCounterSinceLastEe = 0;
 
-        // ⚙️ 현재 모드 기준 스택 목표치 반환 함수
         function getFeverTarget() {
             return isAccelerationMode ? 20 : 50;
         }
 
-        // ⚙️ 피버 게이지 텍스트 갱신
-        function updateFeverStatusUI() {
-            if (isFeverTime) {
-                feverStatusText.innerText = "🔥 FEVER TIME BOOSTING!!";
-                feverStatusText.style.color = "#ffcc00";
-            } else {
-                feverStatusText.innerText = `🔥 FEVER STACK: ${feverStackCount} / ${getFeverTarget()}`;
-                feverStatusText.style.color = "#888";
-            }
+        // 🔄 게임 완전 초기화 함수 (가속 모드 전환 시 구동)
+        function resetGame() {
+            container.innerHTML = "";
+            charsData = [];
+            currentIndex = 0;
+            container.style.transform = `translateX(0px)`;
+            charCounterSinceLastEe = 0;
+            feverStackCount = 0;
+            isFeverTime = false;
+            eeSequenceIndex = 0; // 순서 인덱스도 초기화
+            document.body.style.backgroundColor = "#050505";
+            feverIndicator.style.display = "none";
+            
+            let minEe = isAccelerationMode ? 30 : 100;
+            let maxEe = isAccelerationMode ? 50 : 150;
+            nextEeTriggerCount = Math.floor(Math.random() * (maxEe - minEe + 1)) + minEe;
+
+            appendStream(100);
         }
 
         function appendStream(count) {
             let i = 0;
             while (i < count) {
                 if (charCounterSinceLastEe >= nextEeTriggerCount) {
-                    const eeKeys = Object.keys(easterEggs);
-                    const randomEe = eeKeys[Math.floor(Math.random() * eeKeys.length)];
-                    for (let char of randomEe) { createSpan(char); }
-                    i += randomEe.length;
+                    let eeKey;
+                    
+                    // ⚙️ 규칙 1 : 가속모드 시 이스터에그 순서대로 루프 배치 연산
+                    if (isAccelerationMode) {
+                        eeKey = eeSequence[eeSequenceIndex];
+                        eeSequenceIndex = (eeSequenceIndex + 1) % eeSequence.length; // 끝까지 도달하면 다시 0으로 자동 리셋
+                    } else {
+                        const eeKeys = Object.keys(easterEggs);
+                        eeKey = eeKeys[Math.floor(Math.random() * eeKeys.length)];
+                    }
+
+                    for (let char of eeKey) { createSpan(char); }
+                    i += eeKey.length;
                     charCounterSinceLastEe = 0;
                     
-                    // 가속 모드 여부에 따른 다음 이스터에그 주기 제어
                     let minEe = isAccelerationMode ? 30 : 100;
                     let maxEe = isAccelerationMode ? 50 : 150;
                     nextEeTriggerCount = Math.floor(Math.random() * (maxEe - minEe + 1)) + minEe;
                     continue;
                 }
                 
-                // 가속모드 시 단어 등장 확률 상향 (15% -> 40%)
                 let wordChance = isAccelerationMode ? 0.40 : 0.15;
 
-                // 피버타임이 켜졌거나 확률을 뚫었을 때 단어 생성
                 if (isFeverTime || Math.random() < wordChance) {
                     let word = dictionary[Math.floor(Math.random() * dictionary.length)];
                     for (let char of word) { createSpan(char); }
@@ -469,7 +488,6 @@
                     continue;
                 }
                 
-                // 피버타임이 아닐 때만 낱개 무작위 문자 생성 가능
                 let randomChar = String.fromCharCode(97 + Math.floor(Math.random() * 26));
                 createSpan(randomChar);
                 i++;
@@ -481,6 +499,12 @@
             let span = document.createElement("span");
             span.innerText = char;
             span.className = "char-span";
+            
+            // ⚙️ 규칙 2 : 피버 모드 상태일 때 생성되는 스팬들에 실시간 무지개 애니메이션 클래스 동적 부여
+            if (isFeverTime) {
+                span.classList.add("fever-rainbow");
+            }
+            
             container.appendChild(span);
             charsData.push({ char: char, element: span, colorOverridden: false });
         }
@@ -572,30 +596,31 @@
             li.innerText = word;
             bananaWordList.appendChild(li);
 
-            // 피버 스택 누적 연산 (피버 타임 중에는 추가 누적 제외)
             if (!isFeverTime) {
                 feverStackCount++;
                 if (feverStackCount >= getFeverTarget()) {
                     feverStackCount = 0;
                     activateFeverTime();
                 }
-                updateFeverStatusUI();
             }
         }
 
-        // 🔥 피버 타임 활성화
+        // 🔥 피버 타임 활성화 매커니즘
         function activateFeverTime() {
             isFeverTime = true;
-            feverRemainingChars = 100; // 100자 타이핑 동안 활성화
+            feverRemainingChars = 100; 
             
-            // 시각 연출 활성화
-            document.body.style.backgroundColor = "#1b002a"; // 다크 피버 나이트 보라색 배경
+            document.body.style.backgroundColor = "#1b002a"; 
             feverIndicator.style.display = "block";
-            feverIndicator.innerText = `🔥 FEVER TIME ACTIVE (${feverRemainingChars}) 🔥`;
             
-            // 대기열 전방에 오직 '단어'만 가득 차도록 대량 동적 스폰
-            appendStream(150);
-            updateFeverStatusUI();
+            // ⚙️ 규칙 2 : 현재 치고 있던 인덱스(currentIndex) 뒤쪽 대기열 요소들을 즉시 완전 파괴
+            while (container.childNodes.length > currentIndex) {
+                container.removeChild(container.lastChild);
+            }
+            charsData = charsData.slice(0, currentIndex);
+            
+            // ⚙️ 단어 전용 스트림 즉각 주입 (이 함수 안에서 생성되므로 전부 무지개빛 자동 변환 탑재)
+            appendStream(120); 
         }
 
         function collectEasterEgg(word, color) {
@@ -633,24 +658,15 @@
                 accelBtn.style.borderColor = "#ff9933";
                 accelBtn.style.color = "#ff9933";
                 accelBtn.style.boxShadow = "0 0 12px rgba(255,153,51,0.6)";
-                
-                // 가속모드 전환 주기에 맞게 대기 시간 즉각 재계산
-                nextEeTriggerCount = Math.floor(Math.random() * 21) + 30; 
             } else {
                 accelBtn.innerText = "⚡ 가속 모드: OFF";
                 accelBtn.style.borderColor = "#333";
                 accelBtn.style.color = "#888";
                 accelBtn.style.boxShadow = "none";
-                
-                nextEeTriggerCount = Math.floor(Math.random() * 51) + 100;
             }
             
-            // 조건이 변동되었으므로 스택 인터페이스 업데이트
-            if (feverStackCount >= getFeverTarget() && !isFeverTime) {
-                feverStackCount = 0;
-                activateFeverTime();
-            }
-            updateFeverStatusUI();
+            // ⚙️ 규칙 3 : 가속모드를 키면(또는 전환 시) 완전히 처음부터 리셋하여 시작
+            resetGame();
         });
 
         window.addEventListener("keydown", (e) => {
@@ -661,6 +677,12 @@
             
             if (key === charsData[currentIndex].char) {
                 let currentData = charsData[currentIndex];
+                
+                // 타자가 완료된 글자는 무지개 효과 제거 후 깔끔하게 흰색 고정
+                if (isFeverTime) {
+                    currentData.element.classList.remove("fever-rainbow");
+                }
+                
                 if (!currentData.colorOverridden) {
                     currentData.element.style.color = '#ffffff'; 
                 }
@@ -677,16 +699,12 @@
                     currentFrame = 0; 
                 }, 250);
 
-                // 피버타임 진행도 차감 메커니즘
                 if (isFeverTime) {
                     feverRemainingChars--;
-                    feverIndicator.innerText = `🔥 FEVER TIME ACTIVE (${feverRemainingChars}) 🔥`;
-                    
                     if (feverRemainingChars <= 0) {
                         isFeverTime = false;
-                        document.body.style.backgroundColor = "#050505"; // 원래 배경화면으로 복구
+                        document.body.style.backgroundColor = "#050505"; 
                         feverIndicator.style.display = "none";
-                        updateFeverStatusUI();
                     }
                 }
 
@@ -709,6 +727,7 @@
                             let chosenColor = easterEggs[eeWord].color;
                             for (let j = 0; j < len; j++) {
                                 let targetData = charsData[currentIndex - len + j];
+                                targetData.element.classList.remove("fever-rainbow"); // 이스터에그 고유색 보장
                                 targetData.element.style.color = chosenColor;
                                 targetData.colorOverridden = true; 
                             }
@@ -737,8 +756,10 @@
                                 let chosenColor = flatNeonColors[Math.floor(Math.random() * flatNeonColors.length)];
                                 for (let j = 0; j < len; j++) {
                                     let targetData = charsData[currentIndex - len + j];
-                                    targetData.element.style.color = chosenColor;
-                                    targetData.colorOverridden = true; 
+                                    if (!isFeverTime) { // 피버 타임이 아닐 때만 일반 단어 색상 변환 보장
+                                        targetData.element.style.color = chosenColor;
+                                        targetData.colorOverridden = true; 
+                                    }
                                 }
                                 launchBanana(len);
                                 collectNormalWord(word, chosenColor);
@@ -770,8 +791,6 @@
         eggCloseBtn.addEventListener("click", closeModal);
         overlay.addEventListener("click", closeModal);
 
-        // 첫 트랙 빌드 및 UI 동기화
-        updateFeverStatusUI();
         appendStream(100);
     </script>
 </body>
