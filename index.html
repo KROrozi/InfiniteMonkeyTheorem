@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinite Stream Typing Game - SeaMonkeys Expansion</title>
+    <title>Infinite Stream Typing Game - Fever & Acceleration Edition</title>
     <style>
         /* 기본 UI 설정 */
         body {
@@ -17,6 +17,7 @@
             overflow: hidden;
             font-family: 'Courier New', Courier, monospace;
             color: #ffffff;
+            transition: background-color 0.3s ease; /* 피버타임 배경 전환 효과 */
         }
 
         /* 1. 우측 상단 UI 버튼 그룹 */
@@ -25,9 +26,29 @@
             top: 20px;
             right: 20px;
             display: flex;
+            align-items: center;
             gap: 20px;
             z-index: 10;
         }
+
+        /* ⚡ 가속모드 네온 버튼 스타일 */
+        #accel-btn {
+            background-color: #111;
+            border: 2px solid #333;
+            color: #888;
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            box-shadow: none;
+        }
+        #accel-btn:hover {
+            background-color: #222;
+        }
+
         .bucket-btn-wrapper {
             position: relative;
             cursor: pointer;
@@ -56,6 +77,32 @@
         }
         #word-badge { background-color: #ff3366; }
         #ee-badge { background-color: #ffd700; color: #000; } 
+
+        /* 🔥 피버타임 대형 실시간 인디케이터 */
+        #fever-indicator {
+            display: none;
+            position: fixed;
+            top: 130px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 10px #ffcc00, 0 0 20px #ff6600;
+            animation: feverPulse 0.8s infinite alternate;
+            z-index: 5;
+            letter-spacing: 2px;
+        }
+        @keyframes feverPulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.04); opacity: 1; }
+        }
+
+        /* 피버 게이지 텍스트 가이드 */
+        #fever-status-text {
+            color: #888;
+            font-size: 0.95rem;
+            margin-bottom: -20px;
+            font-weight: bold;
+        }
 
         /* 2. 게임 텍스트 창 (한 줄 스트림) */
         #game-window {
@@ -116,8 +163,6 @@
         /* ========================================================
            ✨ 이스터에그 연출용 CSS 애니메이션 영역
         ======================================================== */
-        
-        /* [bppc 연출] 직선 돌격 */
         .ee-bppc-flying {
             position: fixed;
             width: 550px; height: 550px;
@@ -131,7 +176,6 @@
             100% { left: -600px; transform: translateY(-50%); }
         }
 
-        /* [spoon 연출] 양방향 수평 교차 */
         .ee-spoon-asset {
             position: fixed;
             width: 520px; height: 520px;
@@ -157,7 +201,6 @@
             100% { left: -600px; transform: translateY(-50%) scaleX(-1); }
         }
 
-        /* [dokkae 연출] 사방 모서리 습격 후 중간 지점 흔들기 */
         .ee-dokkae-asset {
             position: fixed;
             width: 500px; height: 500px;
@@ -211,7 +254,6 @@
             100% { bottom: -600px; right: -600px; }
         }
 
-        /* 🌊 [seamonkeys 연출] 1920px 해상도 전체 커버 바운스 댄스 모션 */
         .ee-seamonkeys-asset {
             position: fixed;
             width: 1920px; 
@@ -223,11 +265,11 @@
         }
         @keyframes seamonkeysMotion {
             0%   { top: 150vh; transform: translate(-50%, -50%); }
-            25%  { top: 70vh;  transform: translate(-50%, -50%); } /* 화면 정중앙 솟구치기 */
-            42%  { top: 55vh;  transform: translate(-50%, -50%); } /* 위로 무빙 */
-            58%  { top: 75vh;  transform: translate(-50%, -50%); } /* 아래로 무빙 */
-            75%  { top: 70vh;  transform: translate(-50%, -50%); } /* 다시 중앙 정렬 */
-            100% { top: 150vh; transform: translate(-50%, -50%); } /* 바닥 아래로 완전 퇴장 */
+            25%  { top: 50vh;  transform: translate(-50%, -50%); } 
+            42%  { top: 38vh;  transform: translate(-50%, -50%); } 
+            58%  { top: 62vh;  transform: translate(-50%, -50%); } 
+            75%  { top: 50vh;  transform: translate(-50%, -50%); } 
+            100% { top: 150vh; transform: translate(-50%, -50%); } 
         }
 
         /* 5. 팝업창(모달) 스타일 */
@@ -287,6 +329,8 @@
 <body>
 
     <div id="ui-top-container">
+        <button id="accel-btn">⚡ 가속 모드: OFF</button>
+        
         <div id="banana-btn-wrapper" class="bucket-btn-wrapper">
             <img src="image/banana.png" alt="Normal Words Bucket">
             <div id="word-badge" class="badge">0</div>
@@ -296,6 +340,9 @@
             <div id="ee-badge" class="badge">0</div>
         </div>
     </div>
+
+    <div id="fever-status-text">🔥 FEVER STACK: 0 / 50</div>
+    <div id="fever-indicator">🔥 FEVER TIME ACTIVE (100) 🔥</div>
 
     <div id="game-window">
         <div id="game-container"></div>
@@ -324,15 +371,14 @@
     </div>
 
     <script>
-        const wordsString = "ability,able,about,above,accept,according,account,across,action,activity,actually,address,administration,admit,adult,affect,after,again,against,agency,agent,agree,agreement,ahead,allow,almost,alone,along,already,also,although,always,american,among,amount,analysis,animal,another,answer,anyone,anything,appear,apply,approach,area,argue,around,arrive,article,artist,assume,attack,attention,attorney,audience,author,authority,available,avoid,away,baby,back,blood,board,body,book,born,both,break,bring,brother,budget,build,building,business,call,camera,campaign,cancer,candidate,capital,care,career,carry,case,catch,cause,cell,center,central,century,certain,certainly,chair,challenge,chance,change,character,charge,check,child,choice,choose,church,citizen,city,civil,claim,class,clear,clearly,close,coach,cold,collection,college,color,come,commercial,common,community,company,compare,computer,concern,condition,conference,congress,consider,consumer,contain,continue,control,cost,could,country,couple,course,court,cover,create,crime,cultural,culture,current,customer,dark,data,daughter,dead,deal,death,debate,decade,decide,decision,deep,defense,degree,democrat,democratic,describe,design,despite,detail,determine,develop,development,die,difference,different,difficult,dinner,direction,director,discover,discuss,discussion,disease,doctor,door,down,draw,dream,drive,drop,drug,during,each,early,east,easy,edge,education,effect,effort,eight,either,election,else,employee,energy,enjoy,enough,enter,entire,environment,especially,establish,even,evening,event,ever,every,everybody,everyone,everything,evidence,exactly,example,executive,exist,expect,experience,expert,explain,factor,fail,fall,family,fast,father,fear,federal,feel,feeling,field,fight,figure,fill,film,final,finally,financial,find,fine,finger,finish,fire,firm,first,fish,five,floor,focus,follow,food,foot,force,foreign,forget,form,former,forward,four,free,friend,from,front,full,fund,future,game,garden,gas,general,generation,girl,give,glass,goal,good,government,great,green,ground,group,grow,growth,guess,hair,half,hand,hang,happen,happy,hard,have,head,health,hear,heart,heat,heavy,help,here,herself,high,himself,history,hold,hole,home,hope,hospital,hotel,hour,house,huge,human,hundred,husband,idea,identify,image,imagine,impact,important,improve,include,including,increase,indeed,indicate,individual,industry,information,inside,instead,institution,interest,interesting,international,interview,into,investment,involve,issue,item,join,just,keep,kill,kind,know,knowledge,land,language,large,last,late,later,laugh,lawyer,lead,leader,learning,least,leave,left,legal,less,letter,level,life,light,like,likely,line,list,listen,little,live,local,long,look,lose,loss,love,machine,magazine,main,maintain,major,majority,make,manage,management,manager,many,market,marriage,material,matter,maybe,mean,measure,media,medical,meet,meeting,member,memory,mention,message,method,middle,might,military,million,mind,minute,miss,mission,model,modern,moment,money,month,more,morning,most,mother,mouth,move,movement,movie,much,music,must,myself,name,nation,national,natural,nature,near,nearly,necessary,need,network,never,news,newspaper,next,nice,night,none,north,note,nothing,notice,number,occur,ocean,offer,office,officer,official,often,once,only,onto,open,operation,opportunity,option,order,organization,other,others,outside,over,owner,page,pain,painting,paper,parent,part,participant,particular,particularly,partner,party,pass,past,patient,pattern,peace,people,perform,performance,perhaps,period,person,personal,phone,physical,pick,picture,piece,place,plan,plant,play,player,point,police,policy,political,politics,poor,popular,population,position,positive,possible,power,practice,prepare,present,president,pressure,price,private,probably,problem,process,produce,product,production,professional,professor,program,project,property,protect,prove,provide,public,pull,purpose,push,quality,question,quickly,quite,race,radio,raise,range,rate,rather,reach,read,ready,real,reality,realize,really,reason,receive,recent,recently,recognize,record,reduce,reflect,region,relate,relationship,religious,remain,remember,remove,report,represent,republican,require,research,resource,respond,response,responsibility,rest,result,return,reveal,rich,right,rise,risk,road,rock,role,room,rule,safe,same,save,scene,school,science,scientist,score,season,seat,second,section,security,seek,seem,sell,send,senior,sense,series,serious,serve,service,set,seven,several,sexual,shake,share,shoot,short,shot,should,shoulder,show,side,sign,significant,similar,simple,simply,since,sing,single,sister,site,situation,size,skill,skin,small,smile,social,society,soldier,some,somebody,someone,something,sometimes,song,soon,sort,sound,source,south,southern,space,speak,special,specific,speech,spend,sport,spring,staff,stage,stand,standard,star,start,state,statement,station,stay,step,still,stock,stop,store,story,strategy,street,strong,structure,student,study,stuff,style,subject,success,successful,such,suddenly,suffer,suggest,summer,support,sure,surface,system,table,take,talk,task,team,technology,television,tell,term,test,than,that,their,them,themselves,then,theory,there,these,they,thing,think,third,this,those,though,thought,thousand,threat,three,through,throughout,throw,thus,time,today,together,tonight,total,tough,toward,town,trade,traditional,training,travel,treat,treatment,tree,trial,trip,trouble,true,truth,turn,type,under,understand,unit,until,upon,usually,value,various,very,victim,view,violence,visit,voice,vote,wait,walk,wall,want,warm,warn,wash,watch,water,wave,weapon,wear,week,weight,well,west,western,whatever,when,where,whether,which,while,white,whole,whom,whose,wide,wife,will,wind,window,wish,with,within,without,woman,wonder,word,work,worker,world,worry,would,write,writer,wrong,yard,yeah,year,young,your,yourself,apple,banana,orange,grape,strawberry,keyboard,mouse,monitor,laptop,screen,software,hardware,internet,website,browser,server,database,network,pixel,coding,logic,function,variable,string,array,object,class,method,error,debug,release,version,update,patch,click,scroll,touch,swipe,zoom,upload,download,search,engine,link,domain,cloud,mobile,battery,photo,video,audio,rhythm,beat,tempo,melody,harmony,chord,vocal,guitar,piano,drum,bass,synth,concert,ticket,crowd,album,track,record,vinyl,studio,microphone,speaker,headphone,broadcast,podcast,stream,live,channel,episode,season,series,actor,actress,director,script,plot,scene,drama,comedy,action,horror,thriller,romance,fantasy,scifi,animation,cartoon,comic,novel,poem,poet,chapter,character,hero,villain,magic,sword,shield,dragon,knight,castle,king,queen,prince,princess,royal,crown,throne,gold,silver,bronze,iron,steel,wood,stone,dirt,sand,plastic,cloth,fabric,cotton,silk,wool,leather,shoe,boot,sock,shirt,pant,dress,skirt,coat,jacket,glove,ring,clock,decade,past,present,future,tomorrow,yesterday,noon,afternoon,midnight,dawn,dusk,moon,planet,earth,mars,jupiter,saturn,galaxy,universe,astronaut,rocket,ship,alien,orbit,gravity,speed,light,color,yellow,purple,pink,brown,black,gray,shape,circle,square,triangle,line,point,volume,mass,tall,short,narrow,deep,shallow,high,cold,warm,cool,hard,soft,rough,smooth,heavy,fast,slow,quick,steady,weak,brave,scared,angry,calm,loud,quiet,deaf,blind,mute,dumb,smart,clever,wise,fool,crazy,sane,sick,awake,sleep,dream,nightmare,pillow,blanket,roof,floor,kitchen,bath,living,dining,yard,grass,leaf,branch,root,flower,seed,fruit,vegetable,meat,beef,pork,bread,cheese,milk,butter,salt,pepper,sugar,spice,sweet,sour,bitter,spicy,taste,smell,sight,sense,brain,lung,stomach,liver,kidney,bone,muscle,nail,face,nose,lip,tooth,tongue,neck,arm,thumb,chest,waist,knee,foot";
+        const wordsString = "ability,able,about,above,accept,according,account,across,action,activity,actually,address,administration,admit,adult,affect,after,again,against,agency,agent,agree,agreement,ahead,allow,almost,alone,along,already,also,although,always,american,among,amount,analysis,animal,another,answer,anyone,anything,appear,apply,approach,area,argue,around,arrive,article,artist,assume,attack,attention,attorney,audience,author,authority,available,avoid,away,baby,back,blood,board,body,book,born,both,break,bring,brother,budget,build,building,business,call,camera,campaign,cancer,candidate,capital,care,career,carry,case,catch,cause,cell,center,central,century,certain,certainly,chair,challenge,chance,change,character,charge,check,child,choice,choose,church,citizen,city,civil,claim,class,clear,clearly,close,coach,cold,collection,college,color,come,commercial,common,community,company,compare,computer,concern,condition,conference,congress,consider,consumer,contain,continue,control,cost,could,country,couple,course,court,cover,create,crime,cultural,culture,current,customer,dark,data,daughter,dead,deal,death,debate,decade,decide,decision,deep,defense,degree,democrat,democratic,describe,design,despite,detail,determine,develop,development,die,difference,different,difficult,dinner,direction,director,discover,discuss,discussion,disease,doctor,door,down,draw,dream,drive,drop,drug,during,each,early,east,easy,edge,education,effect,effort,eight,either,election,else,employee,energy,enjoy,enough,enter,entire,environment,especially,establish,even,evening,event,ever,every,everybody,everyone,everything,evidence,exactly,example,executive,exist,expect,experience,expert,explain,factor,fail,fall,family,fast,father,fear,federal,feel,feeling,field,fight,figure,fill,film,final,finally,financial,find,fine,finger,finish,fire,firm,first,fish,five,floor,focus,follow,food,foot,force,foreign,forget,form,former,forward,four,free,friend,from,front,full,fund,future,game,garden,gas,general,generation,girl,give,glass,goal,good,government,great,green,ground,group,grow,growth,guess,hair,half,hand,hang,happen,happy,hard,have,head,health,hear,heart,heat,heavy,help,here,herself,high,himself,history,hold,hole,home,hope,hospital,hotel,hour,house,huge,human,hundred,husband,idea,identify,image,imagine,impact,important,improve,include,including,increase,indeed,indicate,individual,industry,information,inside,instead,institution,interest,interesting,international,interview,into,investment,involve,issue,item,join,just,keep,kill,kind,know,knowledge,land,language,large,last,late,later,laugh,lawyer,lead,leader,learning,least,leave,left,legal,less,letter,level,life,light,like,likely,line,list,listen,little,live,local,long,look,lose,loss,love,machine,magazine,main,maintain,major,majority,make,manage,management,manager,many,market,marriage,material,matter,maybe,mean,measure,media,medical,meet,meeting,member,memory,mention,message,method,middle,might,military,million,mind,minute,miss,mission,model,modern,moment,money,month,more,morning,most,mother,mouth,move,movement,movie,much,music,must,myself,name,nation,national,natural,nature,near,nearly,necessary,need,network,never,news,newspaper,next,nice,night,none,north,note,nothing,notice,number,occur,ocean,offer,office,officer,official,often,once,only,onto,open,operation,opportunity,option,order,organization,other,others,outside,over,owner,page,pain,painting,paper,parent,part,participant,particular,particularly,partner,party,pass,past,patient,pattern,peace,people,perform,performance,perhaps,period,person,personal,phone,physical,pick,picture,piece,place,plan,plant,play,player,point,police,policy,political,politics,poor,popular,population,position,positive,possible,power,practice,prepare,present,president,pressure,price,private,probably,problem,process,produce,product,production,professional,professor,program,project,property,protect,prove,provide,public,pull,purpose,push,quality,question,quickly,quite,race,radio,raise,range,rate,rather,reach,read,ready,real,reality,realize,really,reason,receive,recent,recently,recognize,record,reduce,reflect,region,relate,relationship,religious,remain,remember,remove,report,represent,republican,require,research,resource,respond,response,responsibility,rest,result,return,reveal,rich,right,rise,risk,road,rock,role,room,rule,safe,same,save,scene,school,science,scientist,score,season,seat,second,section,security,seek,seem,sell,send,senior,sense,series,serious,serve,service,set,seven,several,singular,shake,share,shoot,short,shot,should,shoulder,show,side,sign,significant,similar,simple,simply,since,sing,single,sister,site,situation,size,skill,skin,small,smile,social,society,soldier,some,somebody,someone,something,sometimes,song,soon,sort,sound,source,south,southern,space,speak,special,specific,speech,spend,sport,spring,staff,stage,stand,standard,star,start,state,statement,station,stay,step,still,stock,stop,store,story,strategy,street,strong,structure,student,study,stuff,style,subject,success,successful,such,suddenly,suffer,suggest,summer,support,sure,surface,system,table,take,talk,task,team,technology,television,tell,term,test,than,that,their,them,themselves,then,theory,there,these,they,thing,think,third,this,those,though,thought,thousand,threat,three,through,throughout,throw,thus,time,today,together,tonight,total,tough,toward,town,trade,traditional,training,travel,treat,treatment,tree,trial,trip,trouble,true,truth,turn,type,under,understand,unit,until,upon,usually,value,various,very,victim,view,violence,visit,voice,vote,wait,walk,wall,want,warm,warn,wash,watch,water,wave,weapon,wear,week,weight,well,west,western,whatever,when,where,whether,which,while,white,whole,whom,whose,wide,wife,will,wind,window,wish,with,within,without,woman,wonder,word,work,worker,world,worry,would,write,writer,wrong,yard,yeah,year,young,your,yourself,apple,banana,orange,grape,strawberry,keyboard,mouse,monitor,laptop,screen,software,hardware,internet,website,browser,server,database,network,pixel,coding,logic,function,variable,string,array,object,class,method,error,debug,release,version,update,patch,click,scroll,touch,swipe,zoom,upload,download,search,engine,link,domain,cloud,mobile,battery,photo,video,audio,rhythm,beat,tempo,melody,harmony,chord,vocal,guitar,piano,drum,bass,synth,concert,ticket,crowd,album,track,record,vinyl,studio,microphone,speaker,headphone,broadcast,podcast,stream,live,channel,episode,season,series,actor,actress,director,script,plot,scene,drama,comedy,action,horror,thriller,romance,fantasy,scifi,animation,cartoon,comic,novel,poem,poet,chapter,character,hero,villain,magic,sword,shield,dragon,knight,castle,king,queen,prince,princess,royal,crown,throne,gold,silver,bronze,iron,steel,wood,stone,dirt,sand,plastic,cloth,fabric,cotton,silk,wool,leather,shoe,boot,sock,shirt,pant,dress,skirt,coat,jacket,glove,ring,clock,decade,past,present,future,tomorrow,yesterday,noon,afternoon,midnight,dawn,dusk,moon,planet,earth,mars,jupiter,saturn,galaxy,universe,astronaut,rocket,ship,alien,orbit,gravity,speed,light,color,yellow,purple,pink,brown,black,gray,shape,circle,square,triangle,line,point,volume,mass,tall,short,narrow,deep,shallow,high,cold,warm,cool,hard,soft,rough,smooth,heavy,fast,slow,quick,steady,weak,brave,scared,angry,calm,loud,quiet,deaf,blind,mute,dumb,smart,clever,wise,fool,crazy,sane,sick,awake,sleep,dream,nightmare,pillow,blanket,roof,floor,kitchen,bath,living,dining,yard,grass,leaf,branch,root,flower,seed,fruit,vegetable,meat,beef,pork,bread,cheese,milk,butter,salt,pepper,sugar,spice,sweet,sour,bitter,spicy,taste,smell,sight,sense,brain,lung,stomach,liver,kidney,bone,muscle,nail,face,nose,lip,tooth,tongue,neck,arm,thumb,chest,waist,knee,foot";
         const dictionary = wordsString.split(",").filter(word => word.length >= 3);
 
-        // 📌 이스터에그 데이터베이스 (seamonkeys 최신 탑재)
         const easterEggs = {
             "bppc": { img: "image/bppcimg.png", color: "#00FF66" },
             "spoon": { img: "image/spoonimg.png", color: "#FF00FF" },
             "dokkae": { img: "image/dokkaeimg.png", color: "#FF3333" },
-            "seamonkeys": { img: "image/seamonkeysimg.png", color: "#33CCFF" } // 🌊 청량한 네온 아쿠아 블루 블루
+            "seamonkeys": { img: "image/seamonkeysimg.png", color: "#33CCFF" }
         };
 
         const flatNeonColors = ['#FF3366', '#33FFCC', '#33CCFF', '#CCFF33', '#FF9933', '#FF33FF'];
@@ -340,6 +386,7 @@
         const container = document.getElementById("game-container");
         const bananaBtn = document.getElementById("banana-btn-wrapper");
         const eggBtn = document.getElementById("egg-btn-wrapper");
+        const accelBtn = document.getElementById("accel-btn");
         
         const wordBadge = document.getElementById("word-badge");
         const eeBadge = document.getElementById("ee-badge");
@@ -354,6 +401,9 @@
         const bananaWordList = document.getElementById("banana-word-list");
         const eggWordList = document.getElementById("egg-word-list");
         const monkeyImg = document.getElementById("monkey-img");
+        
+        const feverStatusText = document.getElementById("fever-status-text");
+        const feverIndicator = document.getElementById("fever-indicator");
 
         let charsData = []; 
         let currentIndex = 0; 
@@ -365,8 +415,30 @@
         let currentFrame = 0;
         let monkeyTimer = null;
 
+        // ⚙️ 상태 제어용 추가 변수들
+        let isAccelerationMode = false;  // 가속모드 여부
+        let isFeverTime = false;         // 피버타임 여부
+        let feverRemainingChars = 0;     // 남은 피버 글자 수
+        let feverStackCount = 0;         // 모은 단어 스택 개수
+
         let nextEeTriggerCount = Math.floor(Math.random() * 51) + 100; 
         let charCounterSinceLastEe = 0;
+
+        // ⚙️ 현재 모드 기준 스택 목표치 반환 함수
+        function getFeverTarget() {
+            return isAccelerationMode ? 20 : 50;
+        }
+
+        // ⚙️ 피버 게이지 텍스트 갱신
+        function updateFeverStatusUI() {
+            if (isFeverTime) {
+                feverStatusText.innerText = "🔥 FEVER TIME BOOSTING!!";
+                feverStatusText.style.color = "#ffcc00";
+            } else {
+                feverStatusText.innerText = `🔥 FEVER STACK: ${feverStackCount} / ${getFeverTarget()}`;
+                feverStatusText.style.color = "#888";
+            }
+        }
 
         function appendStream(count) {
             let i = 0;
@@ -377,16 +449,27 @@
                     for (let char of randomEe) { createSpan(char); }
                     i += randomEe.length;
                     charCounterSinceLastEe = 0;
-                    nextEeTriggerCount = Math.floor(Math.random() * 51) + 100; 
+                    
+                    // 가속 모드 여부에 따른 다음 이스터에그 주기 제어
+                    let minEe = isAccelerationMode ? 30 : 100;
+                    let maxEe = isAccelerationMode ? 50 : 150;
+                    nextEeTriggerCount = Math.floor(Math.random() * (maxEe - minEe + 1)) + minEe;
                     continue;
                 }
-                if (Math.random() < 0.15) {
+                
+                // 가속모드 시 단어 등장 확률 상향 (15% -> 40%)
+                let wordChance = isAccelerationMode ? 0.40 : 0.15;
+
+                // 피버타임이 켜졌거나 확률을 뚫었을 때 단어 생성
+                if (isFeverTime || Math.random() < wordChance) {
                     let word = dictionary[Math.floor(Math.random() * dictionary.length)];
                     for (let char of word) { createSpan(char); }
                     i += word.length;
                     charCounterSinceLastEe += word.length;
                     continue;
                 }
+                
+                // 피버타임이 아닐 때만 낱개 무작위 문자 생성 가능
                 let randomChar = String.fromCharCode(97 + Math.floor(Math.random() * 26));
                 createSpan(randomChar);
                 i++;
@@ -422,9 +505,6 @@
             setTimeout(() => { flyingBanana.remove(); }, 1200);
         }
 
-        // ========================================================
-        // 🎬 이스터에그 애니메이션 구동 엔진 (seamonkeys 수용 완료)
-        // ========================================================
         function triggerEasterEggInteraction(word) {
             if (word === "bppc") {
                 const spawnCount = 7 + Math.floor(Math.random() * 2); 
@@ -472,13 +552,11 @@
                 }, 4000);
             }
             else if (word === "seamonkeys") {
-                // 🌊 1920px 초대형 바다원숭이 맵 스폰
                 const img = document.createElement("img");
                 img.src = easterEggs["seamonkeys"].img;
                 img.className = "ee-seamonkeys-asset";
                 document.body.appendChild(img);
 
-                // 애니메이션(4.8초) 동안 위아래 바운싱을 마친 후 화면 바닥으로 사라지면 제거
                 setTimeout(() => {
                     img.remove();
                 }, 4800);
@@ -493,6 +571,31 @@
             li.style.color = color;
             li.innerText = word;
             bananaWordList.appendChild(li);
+
+            // 피버 스택 누적 연산 (피버 타임 중에는 추가 누적 제외)
+            if (!isFeverTime) {
+                feverStackCount++;
+                if (feverStackCount >= getFeverTarget()) {
+                    feverStackCount = 0;
+                    activateFeverTime();
+                }
+                updateFeverStatusUI();
+            }
+        }
+
+        // 🔥 피버 타임 활성화
+        function activateFeverTime() {
+            isFeverTime = true;
+            feverRemainingChars = 100; // 100자 타이핑 동안 활성화
+            
+            // 시각 연출 활성화
+            document.body.style.backgroundColor = "#1b002a"; // 다크 피버 나이트 보라색 배경
+            feverIndicator.style.display = "block";
+            feverIndicator.innerText = `🔥 FEVER TIME ACTIVE (${feverRemainingChars}) 🔥`;
+            
+            // 대기열 전방에 오직 '단어'만 가득 차도록 대량 동적 스폰
+            appendStream(150);
+            updateFeverStatusUI();
         }
 
         function collectEasterEgg(word, color) {
@@ -521,6 +624,35 @@
             }
         }
 
+        // ⚡ 가속모드 버튼 토글 클릭 이벤트
+        accelBtn.addEventListener("click", () => {
+            isAccelerationMode = !isAccelerationMode;
+            
+            if (isAccelerationMode) {
+                accelBtn.innerText = "⚡ 가속 모드: ON";
+                accelBtn.style.borderColor = "#ff9933";
+                accelBtn.style.color = "#ff9933";
+                accelBtn.style.boxShadow = "0 0 12px rgba(255,153,51,0.6)";
+                
+                // 가속모드 전환 주기에 맞게 대기 시간 즉각 재계산
+                nextEeTriggerCount = Math.floor(Math.random() * 21) + 30; 
+            } else {
+                accelBtn.innerText = "⚡ 가속 모드: OFF";
+                accelBtn.style.borderColor = "#333";
+                accelBtn.style.color = "#888";
+                accelBtn.style.boxShadow = "none";
+                
+                nextEeTriggerCount = Math.floor(Math.random() * 51) + 100;
+            }
+            
+            // 조건이 변동되었으므로 스택 인터페이스 업데이트
+            if (feverStackCount >= getFeverTarget() && !isFeverTime) {
+                feverStackCount = 0;
+                activateFeverTime();
+            }
+            updateFeverStatusUI();
+        });
+
         window.addEventListener("keydown", (e) => {
             if (bananaModal.style.display === "block" || eggModal.style.display === "block" || currentIndex >= charsData.length) return; 
             if (e.key.length > 1) return; 
@@ -544,6 +676,19 @@
                     monkeyImg.src = "image/monkeystop.png";
                     currentFrame = 0; 
                 }, 250);
+
+                // 피버타임 진행도 차감 메커니즘
+                if (isFeverTime) {
+                    feverRemainingChars--;
+                    feverIndicator.innerText = `🔥 FEVER TIME ACTIVE (${feverRemainingChars}) 🔥`;
+                    
+                    if (feverRemainingChars <= 0) {
+                        isFeverTime = false;
+                        document.body.style.backgroundColor = "#050505"; // 원래 배경화면으로 복구
+                        feverIndicator.style.display = "none";
+                        updateFeverStatusUI();
+                    }
+                }
 
                 if (charsData.length - currentIndex < 40) {
                     appendStream(100);
@@ -625,6 +770,8 @@
         eggCloseBtn.addEventListener("click", closeModal);
         overlay.addEventListener("click", closeModal);
 
+        // 첫 트랙 빌드 및 UI 동기화
+        updateFeverStatusUI();
         appendStream(100);
     </script>
 </body>
