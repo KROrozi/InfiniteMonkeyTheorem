@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinite Stream Typing Game - Deluxe Fever & Sequence Edition</title>
+    <title>Infinite Stream Typing Game - Refined Fever Edition</title>
     <style>
         /* 기본 UI 설정 */
         body {
@@ -77,7 +77,7 @@
         #word-badge { background-color: #ff3366; }
         #ee-badge { background-color: #ffd700; color: #000; } 
 
-        /* 🔥 피버타임 인디케이터 (숫자 제거 버전) */
+        /* 🔥 피버타임 인디케이터 */
         #fever-indicator {
             display: none;
             position: fixed;
@@ -384,7 +384,6 @@
             "seamonkeys": { img: "image/seamonkeysimg.png", color: "#33CCFF" }
         };
 
-        // 🔄 가속 모드 전용 순서 제어용 시퀀스 배열
         const eeSequence = ["bppc", "spoon", "dokkae", "seamonkeys"];
         let eeSequenceIndex = 0; 
 
@@ -433,7 +432,6 @@
             return isAccelerationMode ? 20 : 50;
         }
 
-        // 🔄 게임 완전 초기화 함수 (가속 모드 전환 시 구동)
         function resetGame() {
             container.innerHTML = "";
             charsData = [];
@@ -442,7 +440,7 @@
             charCounterSinceLastEe = 0;
             feverStackCount = 0;
             isFeverTime = false;
-            eeSequenceIndex = 0; // 순서 인덱스도 초기화
+            eeSequenceIndex = 0; 
             document.body.style.backgroundColor = "#050505";
             feverIndicator.style.display = "none";
             
@@ -459,10 +457,9 @@
                 if (charCounterSinceLastEe >= nextEeTriggerCount) {
                     let eeKey;
                     
-                    // ⚙️ 규칙 1 : 가속모드 시 이스터에그 순서대로 루프 배치 연산
                     if (isAccelerationMode) {
                         eeKey = eeSequence[eeSequenceIndex];
-                        eeSequenceIndex = (eeSequenceIndex + 1) % eeSequence.length; // 끝까지 도달하면 다시 0으로 자동 리셋
+                        eeSequenceIndex = (eeSequenceIndex + 1) % eeSequence.length; 
                     } else {
                         const eeKeys = Object.keys(easterEggs);
                         eeKey = eeKeys[Math.floor(Math.random() * eeKeys.length)];
@@ -500,7 +497,6 @@
             span.innerText = char;
             span.className = "char-span";
             
-            // ⚙️ 규칙 2 : 피버 모드 상태일 때 생성되는 스팬들에 실시간 무지개 애니메이션 클래스 동적 부여
             if (isFeverTime) {
                 span.classList.add("fever-rainbow");
             }
@@ -605,7 +601,6 @@
             }
         }
 
-        // 🔥 피버 타임 활성화 매커니즘
         function activateFeverTime() {
             isFeverTime = true;
             feverRemainingChars = 100; 
@@ -613,13 +608,11 @@
             document.body.style.backgroundColor = "#1b002a"; 
             feverIndicator.style.display = "block";
             
-            // ⚙️ 규칙 2 : 현재 치고 있던 인덱스(currentIndex) 뒤쪽 대기열 요소들을 즉시 완전 파괴
             while (container.childNodes.length > currentIndex) {
                 container.removeChild(container.lastChild);
             }
             charsData = charsData.slice(0, currentIndex);
             
-            // ⚙️ 단어 전용 스트림 즉각 주입 (이 함수 안에서 생성되므로 전부 무지개빛 자동 변환 탑재)
             appendStream(120); 
         }
 
@@ -649,7 +642,6 @@
             }
         }
 
-        // ⚡ 가속모드 버튼 토글 클릭 이벤트
         accelBtn.addEventListener("click", () => {
             isAccelerationMode = !isAccelerationMode;
             
@@ -665,7 +657,6 @@
                 accelBtn.style.boxShadow = "none";
             }
             
-            // ⚙️ 규칙 3 : 가속모드를 키면(또는 전환 시) 완전히 처음부터 리셋하여 시작
             resetGame();
         });
 
@@ -678,7 +669,7 @@
             if (key === charsData[currentIndex].char) {
                 let currentData = charsData[currentIndex];
                 
-                // 타자가 완료된 글자는 무지개 효과 제거 후 깔끔하게 흰색 고정
+                // 타자 중일 때 무지개 효과 제거
                 if (isFeverTime) {
                     currentData.element.classList.remove("fever-rainbow");
                 }
@@ -705,6 +696,11 @@
                         isFeverTime = false;
                         document.body.style.backgroundColor = "#050505"; 
                         feverIndicator.style.display = "none";
+                        
+                        // ⚙️ 규칙 1 : 피버 타임이 끝나는 순간 대기열에 남은 모든 글자의 무지개를 걷어내고 원래 색상(#444)으로 백업
+                        for (let k = currentIndex; k < charsData.length; k++) {
+                            charsData[k].element.classList.remove("fever-rainbow");
+                        }
                     }
                 }
 
@@ -727,7 +723,7 @@
                             let chosenColor = easterEggs[eeWord].color;
                             for (let j = 0; j < len; j++) {
                                 let targetData = charsData[currentIndex - len + j];
-                                targetData.element.classList.remove("fever-rainbow"); // 이스터에그 고유색 보장
+                                targetData.element.classList.remove("fever-rainbow"); 
                                 targetData.element.style.color = chosenColor;
                                 targetData.colorOverridden = true; 
                             }
@@ -756,10 +752,11 @@
                                 let chosenColor = flatNeonColors[Math.floor(Math.random() * flatNeonColors.length)];
                                 for (let j = 0; j < len; j++) {
                                     let targetData = charsData[currentIndex - len + j];
-                                    if (!isFeverTime) { // 피버 타임이 아닐 때만 일반 단어 색상 변환 보장
-                                        targetData.element.style.color = chosenColor;
-                                        targetData.colorOverridden = true; 
-                                    }
+                                    
+                                    // ⚙️ 규칙 2 : 피버 여부와 상관없이 무조건 단어가 최종 완성되면 무지개를 부수고 랜덤 네온 색상으로 칠함
+                                    targetData.element.classList.remove("fever-rainbow");
+                                    targetData.element.style.color = chosenColor;
+                                    targetData.colorOverridden = true; 
                                 }
                                 launchBanana(len);
                                 collectNormalWord(word, chosenColor);
